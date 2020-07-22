@@ -195,7 +195,7 @@
 
     </div>
 
-    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="3000" style="width: 200px; position: fixed; top: 20px; right: 20px;" >
+    <div id="example_message" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="3000" style="width: 200px;" >
     <div class="toast-header">
         <strong class="mr-auto" id="message_type"></strong>
         <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
@@ -204,6 +204,13 @@
     </div>
     <div class="toast-body" id="message"></div>
     </div>
+
+    <div aria-live="polite" aria-atomic="true">
+        <!-- Position it -->
+        <div id="message_list"  style="position: fixed; top: 20px; right: 20px;">
+          <!-- Then put toasts within -->
+        </div>
+      </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -233,9 +240,21 @@
 
         // show message or error
         function show_message(message_type, content) {
+            // set new content
             $("#message_type").text(message_type);
             $("#message").text(content);
-            $(".toast").toast('show');
+
+            // clone the new message
+            let new_toast = $("#example_message").clone();
+
+            // remove ids
+            new_toast.removeAttr("id");
+
+            // add new message to message list
+            $("#message_list").append(new_toast);
+
+            // show the new message
+            new_toast.toast('show');
         }
         // show message or error
 
