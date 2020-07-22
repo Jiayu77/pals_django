@@ -284,20 +284,25 @@
                 type: "POST",
                 data: data,
                 success: function (data) {
-                    console.log(data)
+                    console.log(data);
+                    remove_loading_animation();
                 },
                 error: function (jqXHR, textStatus, err) {
                     console.log(arguments);
+                    remove_loading_animation();
                 },
                 complete: function (jqXHR, textStatus) {
                     console.log(textStatus);
+                    remove_loading_animation();
                 },
                 statusCode: {
                     '403': function (jqXHR, textStatus, err) {
                         console.log(arguments);
+                        remove_loading_animation();
                     },
                     '400': function (jqXHR, textStatus, err) {
                         console.log(arguments);
+                        remove_loading_animation();
                     }
                 }
             });
