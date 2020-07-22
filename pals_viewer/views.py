@@ -1,10 +1,16 @@
 import json
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
+from pals.pimp_tools import get_pimp_API_token_from_env, PIMP_HOST, download_from_pimp
+from pals.feature_extraction import DataSource
+from pals.PLAGE import PLAGE
+from pals.ORA import ORA
+from pals.GSEA import GSEA
+from pals.common import *
 
 # Create your views here.
 def index(request):
-    return render(request,'pals/index.html')
+    return render(request,'pals_viewer/index.html')
 
 def analysis(request):
 
@@ -12,7 +18,7 @@ def analysis(request):
         return None
 
     token=request.POST.get('token')
-    analysis_id=request.POST.get('analysis_id')
+    analysis_id=int(request.POST.get('analysis_id'))
     experimental_design=request.POST.get('experimental_design')
     pathway_analysis_method=request.POST.get('pathway_analysis_method')
     database=request.POST.get('database')
@@ -29,8 +35,14 @@ def analysis(request):
     print('reactome_metabolic_pathway_only=', reactome_metabolic_pathway_only)
     print('reactome_query=', reactome_query)
 
+    int_df, annotation_df, experimental_design = download_from_pimp(token, PIMP_HOST, analysis_id, 'kegg')
+    print('experimental design:', experimental_design)
+
     table=[]
 
     result = {'message':'Analysis done!', 'data':{'table':table}}
+
+    import time
+    time.sleep(1)
     
     return HttpResponse(json.dumps(result))
