@@ -115,7 +115,7 @@
                     <!-- submit -->
                     <div class="row">
                         <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2"
-                                id="start_analysis">Start Analysis And Get Results</button></div>
+                                id="start_analysis"><span id="start_status">Start Analysis And Get Results</span><span id="running_status"><span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span> Running...</span></button></div>
                     </div>
                     <!-- submit -->
                     <!-- analysis method select -->
@@ -208,13 +208,17 @@
     <script>
         // display loading animation
         function display_loading_animation() {
-
+            $("#start_status").hide();
+            $("#running_status").show();
+            $("#start_analysis").attr("disabled", true);
         }
         // display loading animation
 
         // remove loading animation
         function remove_loading_animation() {
-
+            $("#start_status").show();
+            $("#running_status").hide();
+            $("#start_analysis").removeAttr("disabled");
         }
         // remove loading animation
 
@@ -224,7 +228,7 @@
         }
         // show message or error
 
-
+        remove_loading_animation();
 
         $('#start_analysis').click(function () {
             // display loading animation
@@ -245,7 +249,10 @@
             if ($("[name='reactome_query']").is(':checked')) {
                 reactome_query = true;
             }
+
+            // get csrf token
             let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
+            // get csrf token
 
             // debug
             window.console.log('token=', token)
