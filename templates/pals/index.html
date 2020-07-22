@@ -56,18 +56,21 @@
                         </div>
                     </div>
                     <div class="row">
+                        {% csrf_token %}
                         <div class="col-md-4">
-                            <div class="form-group"><label>Token</label><input type="text" class="form-control"></div>
+                            <div class="form-group"><label>Token</label><input type="text" class="form-control"
+                                    name="token"></div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group"><label>Analysis ID</label><input type="text" class="form-control">
+                            <div class="form-group"><label>Analysis ID</label><input type="text" class="form-control"
+                                    name="analysis_id">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-8">
                             <div class="form-group"><label>Experimental Design</label><textarea class="form-control"
-                                    rows="3"></textarea></div>
+                                    rows="3" name="experimental_design"></textarea></div>
                         </div>
                     </div>
                     <!-- pimp setting -->
@@ -81,36 +84,38 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group"><label>Pathway Analysis Method</label>
-                                <select name="" id="input" class="form-control" required="required">
+                                <select name="pathway_analysis_method" class="form-control" required="required">
                                     <option>PLAGE</option>
                                     <option>ORA</option>
                                     <option>GSEA</option>
                                 </select></div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group"><label>Database</label><select name="" id="input"
-                                    class="form-control" required="required">
+                            <div class="form-group"><label>Database</label><select name="database" class="form-control"
+                                    required="required">
                                     <option>KEGG - from PiMP</option>
                                     <option>KEGG - from Reactome</option>
                                     <option>Chebi - from Reactome</option>
                                     <option>UniProt - from Reactome</option>
                                     <option>Ensembl - from Reactome</option>
                                 </select></div>
-                            <div class="form-group"><label>Reactome Species</label><select name="" id="input"
+                            <div class="form-group"><label>Reactome Species</label><select name="reactome_species"
                                     class="form-control" required="required">
                                     <option>Homo sapines</option>
                                 </select></div>
-                            <div class="form-group form-check"><input type="checkbox" class="form-check-input"><label
-                                    class="form-check-label">Limit to metabolic pathways only.</label></div>
-                            <div class="form-group form-check"><input type="checkbox" class="form-check-input"><label
-                                    class="form-check-label">Connect to a Reactome Neo4j database (Online Mode).</label>
+                            <div class="form-group form-check"><input type="checkbox" class="form-check-input"
+                                    name="reactome_metabolic_pathway_only"><label class="form-check-label">Limit to
+                                    metabolic pathways only.</label></div>
+                            <div class="form-group form-check"><input type="checkbox" class="form-check-input"
+                                    name="reactome_query"><label class="form-check-label">Connect to a Reactome Neo4j
+                                    database (Online Mode).</label>
                             </div>
                         </div>
                     </div>
                     <!-- submit -->
                     <div class="row">
-                        <div class="col-md-8"><button type="submit"
-                                class="btn btn-lg btn-primary btn-block mb-2">Start Analysis And Get Results</button></div>
+                        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2"
+                                id="start_analysis">Start Analysis And Get Results</button></div>
                     </div>
                     <!-- submit -->
                     <!-- analysis method select -->
@@ -128,56 +133,58 @@
                     </div>
                     <div class="row mb-4">
                         <div class="col-md-12">
-                            <div class="table-responsive pd-2 rounded border"><table class="table table-hover">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th></th>
-                                        <th>pw_name</th>
-                                        <th>beer1/beer2 p-value</th>
-                                        <th>beer3/beer4 p-value</th>
-                                        <th>unq_pw_F</th>
-                                        <th>tot_ds_F</th>
-                                        <th>F_coverage</th>
-                                        <th>sf</th>
-                                        <th>exp_F</th>
-                                        <th>Ex_Cov</th>
-                                        <th>COMPOUND beer1/beer2 comb_p</th>
-                                        <th>COMPOUND beer3/beer4 comb_p</th>
+                            <div class="table-responsive pd-2 rounded border">
+                                <table class="table table-hover">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th></th>
+                                            <th>pw_name</th>
+                                            <th>beer1/beer2 p-value</th>
+                                            <th>beer3/beer4 p-value</th>
+                                            <th>unq_pw_F</th>
+                                            <th>tot_ds_F</th>
+                                            <th>F_coverage</th>
+                                            <th>sf</th>
+                                            <th>exp_F</th>
+                                            <th>Ex_Cov</th>
+                                            <th>COMPOUND beer1/beer2 comb_p</th>
+                                            <th>COMPOUND beer3/beer4 comb_p</th>
 
-                                        <!-- pw_name	beer1/beer2 p-value	beer3/beer4 p-value	unq_pw_F	tot_ds_F	F_coverage	sf	exp_F	Ex_Cov	COMPOUND beer1/beer2 comb_p	COMPOUND beer3/beer4 comb_p -->
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>R-HSA-2024096</td>
-                                        <td>HS-GAG degradation</td>
-                                        <td>0.014855</td>
-                                        <td>0.059228</td>
-                                        <td>5</td>
-                                        <td>1</td>
-                                        <td>20.00</td>
-                                        <td>0.874414</td>
-                                        <td>1.69</td>
-                                        <td>33.80</td>
-                                        <td>0.014855</td>
-                                        <td>0.059228</td>
-                                    </tr>
-                                    <tr>
-                                        <td>R-HSA-2024096</td>
-                                        <td>HS-GAG degradation</td>
-                                        <td>0.014855</td>
-                                        <td>0.059228</td>
-                                        <td>5</td>
-                                        <td>1</td>
-                                        <td>20.00</td>
-                                        <td>0.874414</td>
-                                        <td>1.69</td>
-                                        <td>33.80</td>
-                                        <td>0.014855</td>
-                                        <td>0.059228</td>
-                                    </tr>
-                                </tbody>
-                            </table></div>
+                                            <!-- pw_name	beer1/beer2 p-value	beer3/beer4 p-value	unq_pw_F	tot_ds_F	F_coverage	sf	exp_F	Ex_Cov	COMPOUND beer1/beer2 comb_p	COMPOUND beer3/beer4 comb_p -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>R-HSA-2024096</td>
+                                            <td>HS-GAG degradation</td>
+                                            <td>0.014855</td>
+                                            <td>0.059228</td>
+                                            <td>5</td>
+                                            <td>1</td>
+                                            <td>20.00</td>
+                                            <td>0.874414</td>
+                                            <td>1.69</td>
+                                            <td>33.80</td>
+                                            <td>0.014855</td>
+                                            <td>0.059228</td>
+                                        </tr>
+                                        <tr>
+                                            <td>R-HSA-2024096</td>
+                                            <td>HS-GAG degradation</td>
+                                            <td>0.014855</td>
+                                            <td>0.059228</td>
+                                            <td>5</td>
+                                            <td>1</td>
+                                            <td>20.00</td>
+                                            <td>0.874414</td>
+                                            <td>1.69</td>
+                                            <td>33.80</td>
+                                            <td>0.014855</td>
+                                            <td>0.059228</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                     <!-- display result -->
@@ -191,16 +198,105 @@
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
-    </script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
         integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"
         integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
     </script>
-    <script></script>
+    <script>
+        // display loading animation
+        function display_loading_animation() {
+
+        }
+        // display loading animation
+
+        // remove loading animation
+        function remove_loading_animation() {
+
+        }
+        // remove loading animation
+
+        // show message or error
+        function show_message(message_type, content) {
+
+        }
+        // show message or error
+
+
+
+        $('#start_analysis').click(function () {
+            // display loading animation
+            display_loading_animation();
+
+            // get all inputs, then post and get result
+            let token = $("[name='token']")[0].value;
+            let analysis_id = $("[name='analysis_id']")[0].value;
+            let experimental_design = $("[name='experimental_design']")[0].value;
+            let pathway_analysis_method = $("[name='pathway_analysis_method']").val();
+            let database = $("[name='database']").val();
+            let reactome_species = $("[name='reactome_species']").val();
+            let reactome_metabolic_pathway_only = false;
+            if ($("[name='reactome_metabolic_pathway_only']").is(':checked')) {
+                reactome_metabolic_pathway_only = true;
+            }
+            let reactome_query = false;
+            if ($("[name='reactome_query']").is(':checked')) {
+                reactome_query = true;
+            }
+            let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
+
+            // debug
+            window.console.log('token=', token)
+            window.console.log('analysis_id=', analysis_id)
+            window.console.log('experimental_design=', experimental_design)
+            window.console.log('pathway_analysis_method=', pathway_analysis_method)
+            window.console.log('database=', database)
+            window.console.log('reactome_species=', reactome_species)
+            window.console.log('reactome_metabolic_pathway_only=', reactome_metabolic_pathway_only)
+            window.console.log('reactome_query=', reactome_query)
+            // debug
+            let data = {
+                csrfmiddlewaretoken: csrfmiddlewaretoken,
+                token: token,
+                analysis_id: analysis_id,
+                experimental_design: experimental_design,
+                pathway_analysis_method: pathway_analysis_method,
+                database: database,
+                reactome_species: reactome_species,
+                reactome_metabolic_pathway_only: reactome_metabolic_pathway_only,
+                reactome_query: reactome_query
+            };
+
+            // get all inputs, then post and get result
+            // if error, just show errors
+            // if success, just show tables
+            $.ajax({
+                url: "analysis",
+                type: "POST",
+                data: data,
+                success: function (data) {
+                    console.log(data)
+                },
+                error: function (jqXHR, textStatus, err) {
+                    console.log(arguments);
+                },
+                complete: function (jqXHR, textStatus) {
+                    console.log(textStatus);
+                },
+                statusCode: {
+                    '403': function (jqXHR, textStatus, err) {
+                        console.log(arguments);
+                    },
+                    '400': function (jqXHR, textStatus, err) {
+                        console.log(arguments);
+                    }
+                }
+            });
+        });
+
+    </script>
 </body>
 
 </html>
