@@ -195,6 +195,15 @@
 
     </div>
 
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="3000" style="width: 200px; position: fixed; top: 20px; right: 20px;" >
+    <div class="toast-header">
+        <strong class="mr-auto" id="message_type"></strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="toast-body" id="message"></div>
+    </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -224,12 +233,17 @@
 
         // show message or error
         function show_message(message_type, content) {
-
+            $("#message_type").text(message_type);
+            $("#message").text(content);
+            $(".toast").toast('show');
         }
         // show message or error
 
+        // 1. at first, we need to set the button to correct status
         remove_loading_animation();
 
+        // 2. binding the click event to button
+        //    if click the button, we need to submit data
         $('#start_analysis').click(function () {
             // display loading animation
             display_loading_animation();
@@ -283,26 +297,32 @@
                 url: "analysis",
                 type: "POST",
                 data: data,
+                dataType: "json",
                 success: function (data) {
                     console.log(data);
                     remove_loading_animation();
+                    show_message('Info', data.message);
                 },
                 error: function (jqXHR, textStatus, err) {
                     console.log(arguments);
                     remove_loading_animation();
+                    show_message('Error', err);
                 },
                 complete: function (jqXHR, textStatus) {
                     console.log(textStatus);
                     remove_loading_animation();
+                    // show_message('Info', 'Done!');
                 },
                 statusCode: {
                     '403': function (jqXHR, textStatus, err) {
                         console.log(arguments);
                         remove_loading_animation();
+                        show_message('Error', err);
                     },
                     '400': function (jqXHR, textStatus, err) {
                         console.log(arguments);
                         remove_loading_animation();
+                        show_message('Error', err);
                     }
                 }
             });
