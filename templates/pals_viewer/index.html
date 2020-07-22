@@ -93,15 +93,15 @@
                         <div class="col-md-4">
                             <div class="form-group"><label>Database</label><select name="database" class="form-control"
                                     required="required">
-                                    <option>KEGG - from PiMP</option>
-                                    <option>KEGG - from Reactome</option>
-                                    <option>Chebi - from Reactome</option>
-                                    <option>UniProt - from Reactome</option>
-                                    <option>Ensembl - from Reactome</option>
+                                    {% for database in databases %}
+                                    <option>{{database}}</option>
+                                    {% endfor %}
                                 </select></div>
                             <div class="form-group"><label>Reactome Species</label><select name="reactome_species"
                                     class="form-control" required="required">
-                                    <option>Homo sapines</option>
+                                    {% for reactome_specy in reactome_species %}
+                                    <option>{{reactome_specy}}</option>
+                                    {% endfor %}
                                 </select></div>
                             <div class="form-group form-check"><input type="checkbox" class="form-check-input"
                                     name="reactome_metabolic_pathway_only"><label class="form-check-label">Limit to
@@ -135,54 +135,8 @@
                         <div class="col-md-12">
                             <div class="table-responsive pd-2 rounded border">
                                 <table class="table table-hover">
-                                    <thead class="thead-light">
-                                        <tr>
-                                            <th></th>
-                                            <th>pw_name</th>
-                                            <th>beer1/beer2 p-value</th>
-                                            <th>beer3/beer4 p-value</th>
-                                            <th>unq_pw_F</th>
-                                            <th>tot_ds_F</th>
-                                            <th>F_coverage</th>
-                                            <th>sf</th>
-                                            <th>exp_F</th>
-                                            <th>Ex_Cov</th>
-                                            <th>COMPOUND beer1/beer2 comb_p</th>
-                                            <th>COMPOUND beer3/beer4 comb_p</th>
-
-                                            <!-- pw_name	beer1/beer2 p-value	beer3/beer4 p-value	unq_pw_F	tot_ds_F	F_coverage	sf	exp_F	Ex_Cov	COMPOUND beer1/beer2 comb_p	COMPOUND beer3/beer4 comb_p -->
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>R-HSA-2024096</td>
-                                            <td>HS-GAG degradation</td>
-                                            <td>0.014855</td>
-                                            <td>0.059228</td>
-                                            <td>5</td>
-                                            <td>1</td>
-                                            <td>20.00</td>
-                                            <td>0.874414</td>
-                                            <td>1.69</td>
-                                            <td>33.80</td>
-                                            <td>0.014855</td>
-                                            <td>0.059228</td>
-                                        </tr>
-                                        <tr>
-                                            <td>R-HSA-2024096</td>
-                                            <td>HS-GAG degradation</td>
-                                            <td>0.014855</td>
-                                            <td>0.059228</td>
-                                            <td>5</td>
-                                            <td>1</td>
-                                            <td>20.00</td>
-                                            <td>0.874414</td>
-                                            <td>1.69</td>
-                                            <td>33.80</td>
-                                            <td>0.014855</td>
-                                            <td>0.059228</td>
-                                        </tr>
-                                    </tbody>
+                                    <thead class="thead-light"><tr id="header"></tr></thead>
+                                    <tbody id="tbody"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -258,6 +212,30 @@
         }
         // show message or error
 
+        // display table
+        function display_table(headers, rows) {
+            let header_tr = $("#header");
+            header_tr.empty();
+            headers.forEach(header => {
+                let h = $("<th></th>");
+                h.text(header);
+                header_tr.append(h);
+            });
+
+            let tbody = $("#tbody");
+            tbody.empty();
+            rows.forEach(row => {
+                let tr = $("<tr></tr>");
+                row.forEach(column => {
+                    let td = $("<td></td>");
+                    td.text(column);
+                    tr.append(td);
+                });
+                tbody.append(tr);
+            });
+        }
+        // display table
+
         // 1. at first, we need to set the button to correct status
         remove_loading_animation();
 
@@ -319,6 +297,10 @@
                 dataType: "json",
                 success: function (data) {
                     console.log(data);
+                    let table = data.data.table;
+                    let headers = table.headers;
+                    let rows = table.rows;
+                    display_table(headers, rows);
                     remove_loading_animation();
                     show_message('Info', data.message);
                 },
