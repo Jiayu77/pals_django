@@ -129,17 +129,18 @@
                             <h2>3. Results</h2>
                         </div>
                     </div>
-                    <div class="row mb-2">
-                        <div class="col-md-12"><button class="btn btn-primary">Download</button></div>
-                    </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="table-responsive pd-2 rounded">
-                                <table class="table table-hover" id="result-table"
-                                    data-pagination="true"
-                                    data-search="true"
-                                ></table>
-                            </div>
+                            <div id="toolbar" style="margin: 0;"></div>
+                            <table class="table table-hover" id="result-table"
+                                data-toolbar="#toolbar"
+                                data-pagination="true"
+                                data-search="true"
+                                data-show-export="true"
+                                data-page-list="[10, 25, 50, 100, all]"
+                            ></table>
+                            <!-- <div class="table-responsive pd-2 rounded">
+                            </div> -->
                         </div>
                     </div>
                     <!-- display result -->
@@ -178,7 +179,9 @@
     </script>
 
     <!-- bootstrap-table -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-table/1.17.1/bootstrap-table.min.js"></script>
+    <script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.17.1/dist/bootstrap-table.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.17.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
 
     <script>
         // display loading animation
@@ -261,6 +264,9 @@
 
             // init table
             result_table.bootstrapTable('destroy').bootstrapTable({
+                showExport: true,
+                exportDataType: "all",
+                exportTypes: ['json', 'csv', 'txt'],
                 columns: columns,
                 data: data
             })
