@@ -42,7 +42,78 @@ def index(request):
     content_dict['KEGG'] = DATABASE_PIMP_KEGG
     content_dict['reactome_species'] = reactome_species
 
-    return render(request,'pals_viewer/index.html', content_dict)
+    return render(request,'pals_viewer/pathway_index.html', content_dict)
+
+def gnps_index(request):
+    databases = [
+        DATABASE_PIMP_KEGG,
+        DATABASE_REACTOME_KEGG,
+        DATABASE_REACTOME_CHEBI,
+        DATABASE_REACTOME_UNIPROT,
+        DATABASE_REACTOME_ENSEMBL,
+        DATABASE_GNPS_MOLECULAR_FAMILY,
+        DATABASE_GNPS_MS2LDA,
+    ]
+
+    reactome_species = [
+        REACTOME_SPECIES_ARABIDOPSIS_THALIANA,
+        REACTOME_SPECIES_BOS_TAURUS,
+        REACTOME_SPECIES_CAENORHABDITIS_ELEGANS,
+        REACTOME_SPECIES_CANIS_LUPUS_FAMILIARIS,
+        REACTOME_SPECIES_DANIO_RERIO,
+        REACTOME_SPECIES_DICTYOSTELIUM_DISCOIDEUM,
+        REACTOME_SPECIES_DROSOPHILA_MELANOGASTER,
+        REACTOME_SPECIES_GALLUS_GALLUS,
+        REACTOME_SPECIES_HOMO_SAPIENS,
+        REACTOME_SPECIES_MUS_MUSCULUS,
+        REACTOME_SPECIES_ORYZA_SATIVA,
+        REACTOME_SPECIES_RATTUS_NORVEGICUS,
+        REACTOME_SPECIES_SACCHAROMYCES_CEREVISIAE,
+        REACTOME_SPECIES_SUS_SCROFA,
+    ]
+
+    content_dict = {}
+    content_dict['databases'] = databases
+    content_dict['KEGG'] = DATABASE_PIMP_KEGG
+    content_dict['reactome_species'] = reactome_species
+
+    return render(request,'pals_viewer/gnps_index.html', content_dict)
+
+def ms2lda_index(request):
+    databases = [
+        DATABASE_PIMP_KEGG,
+        DATABASE_REACTOME_KEGG,
+        DATABASE_REACTOME_CHEBI,
+        DATABASE_REACTOME_UNIPROT,
+        DATABASE_REACTOME_ENSEMBL,
+        DATABASE_GNPS_MOLECULAR_FAMILY,
+        DATABASE_GNPS_MS2LDA,
+    ]
+
+    reactome_species = [
+        REACTOME_SPECIES_ARABIDOPSIS_THALIANA,
+        REACTOME_SPECIES_BOS_TAURUS,
+        REACTOME_SPECIES_CAENORHABDITIS_ELEGANS,
+        REACTOME_SPECIES_CANIS_LUPUS_FAMILIARIS,
+        REACTOME_SPECIES_DANIO_RERIO,
+        REACTOME_SPECIES_DICTYOSTELIUM_DISCOIDEUM,
+        REACTOME_SPECIES_DROSOPHILA_MELANOGASTER,
+        REACTOME_SPECIES_GALLUS_GALLUS,
+        REACTOME_SPECIES_HOMO_SAPIENS,
+        REACTOME_SPECIES_MUS_MUSCULUS,
+        REACTOME_SPECIES_ORYZA_SATIVA,
+        REACTOME_SPECIES_RATTUS_NORVEGICUS,
+        REACTOME_SPECIES_SACCHAROMYCES_CEREVISIAE,
+        REACTOME_SPECIES_SUS_SCROFA,
+    ]
+
+    content_dict = {}
+    content_dict['databases'] = databases
+    content_dict['KEGG'] = DATABASE_PIMP_KEGG
+    content_dict['reactome_species'] = reactome_species
+
+    return render(request,'pals_viewer/ms2lda_index.html', content_dict)
+
 
 def analysis(request):
 
@@ -107,3 +178,9 @@ def analysis(request):
     result = {'message':'Analysis done!', 'data':{'table':table}}
     
     return HttpResponse(json.dumps(result))
+
+def gnps_analysis(request):
+    pass
+
+def ms2lda_analysis(request):
+    pass

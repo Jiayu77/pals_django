@@ -28,14 +28,14 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pals_viewer:index' %}">Pathway </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="{% url 'pals_viewer:gnps_index' %}">GNPS Molecular Family </a>
+                    </li>
                     <li class="nav-item active">
-                        <a class="nav-link" href="#">Pathway </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">GNPS Molecular Family </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">GNPS-MS2LDA </a>
+                        <a class="nav-link" href="{% url 'pals_viewer:ms2lda_index' %}">GNPS-MS2LDA </a>
                     </li>
                 </ul>
             </div>
@@ -47,7 +47,7 @@
                 <div class="content">
                     <h1 class="mt-4 mb-4">PALS - Pathway Activity Level Scoring</h1>
 
-                    <h3>Pathway Analysis</h3>
+                    <h3>GNPS-MS2LDA Analysis</h3>
                     <p>Please upload your intensity (example) and annotation (example) CSV files from the sidebar. Next,
                         select the case and control groups, the pathway analysis method as well as the database to use.
                     </p>
