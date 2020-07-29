@@ -284,8 +284,8 @@
             display_loading_animation();
 
             // get all inputs, then post and get result
-            let token = $("[name='token']")[0].value;
-            let analysis_id = $("[name='analysis_id']")[0].value;
+            let gnps_url = $("[name='gnps_url']")[0].value;
+            let metadata = $("[name='metadata']")[0].files[0];
             let experimental_design = $("[name='experimental_design']")[0].value;
             let pathway_analysis_method = $("[name='pathway_analysis_method']").val();
             let database = $("[name='database']").val();
@@ -304,8 +304,7 @@
             // get csrf token
 
             // debug
-            window.console.log('token=', token)
-            window.console.log('analysis_id=', analysis_id)
+            window.console.log('gnps_url=', gnps_url)
             window.console.log('experimental_design=', experimental_design)
             window.console.log('pathway_analysis_method=', pathway_analysis_method)
             window.console.log('database=', database)
@@ -313,25 +312,26 @@
             window.console.log('reactome_metabolic_pathway_only=', reactome_metabolic_pathway_only)
             window.console.log('reactome_query=', reactome_query)
             // debug
-            let data = {
-                csrfmiddlewaretoken: csrfmiddlewaretoken,
-                token: token,
-                analysis_id: analysis_id,
-                experimental_design: experimental_design,
-                pathway_analysis_method: pathway_analysis_method,
-                database: database,
-                reactome_species: reactome_species,
-                reactome_metabolic_pathway_only: reactome_metabolic_pathway_only,
-                reactome_query: reactome_query
-            };
+            let data = new FormData();
+            data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
+            data.append('gnps_url', gnps_url);
+            data.append('metadata', metadata);
+            data.append('experimental_design', experimental_design);
+            data.append('pathway_analysis_method', pathway_analysis_method);
+            data.append('database', database);
+            data.append('reactome_species', reactome_species);
+            data.append('reactome_metabolic_pathway_only', reactome_metabolic_pathway_only);
+            data.append('reactome_query', reactome_query);
 
             // get all inputs, then post and get result
             // if error, just show errors
             // if success, just show tables
             $.ajax({
-                url: "analysis",
+                url: "{% url 'pals_viewer:gnps_analysis' %}",
                 type: "POST",
                 data: data,
+                processData: false, // required for file uploading
+                contentType: false, // required for file uploading
                 dataType: "json",
                 success: function (data) {
                     console.log(data);
