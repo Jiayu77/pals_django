@@ -9,6 +9,8 @@ from pals.PLAGE import PLAGE
 from pals.ORA import ORA
 from pals.GSEA import GSEA
 from pals.common import *
+from bioservices.kegg import KEGG
+
 import pandas as pd
 import zipfile
 import seaborn as sns
@@ -184,6 +186,52 @@ def analysis(request):
     result = {'message':'Analysis done!', 'data':{'table':table}}
     
     return HttpResponse(json.dumps(result))
+
+def show_kegg_diagram(request):
+    if request.method != 'POST':
+        return None
+    
+    content_dict = {}
+    details = []
+    
+    # get data from POST
+    id=request.POST.get('id') # pathway index of row of table
+    pathway_name=request.POST.get('pathway_name') # pathway name of selected row of table
+    row=json.loads(request.POST.get('row')) # the select row of table
+    stId=id
+    print('row=',row)
+
+    # calculate information
+    label = '%s: %s' % (stId, pathway_name)
+    info_url = 'https://www.genome.jp/dbget-bin/www_bget?%s' % stId
+    header = '<h3>{} [<a href="{}" target="_blank" rel="noopener noreferrer">Info</a>]</h3>'.format(label, info_url)
+    details.append(header)
+
+    p_value = row['p-value']
+    num_hits = row['Formula Hits']
+    details.append('<h4>p-value: %.6f</h4>' % p_value)
+    details.append('<h4>Formula Hits: %d</h4>' % (num_hits))
+    details.append('<h4>Summary:</h4>')
+
+    dict_data = get_kegg_info(stId)
+    for k, v in dict_data.items():
+        # if k in ['CLASS', 'MODULE', 'DISEASE', 'REL_PATHWAY']:
+        if k in ['CLASS']:
+            details.append('<p>{}: {}</p>'.format(k, v))
+
+    image_url = 'https://www.genome.jp/kegg/pathway/map/%s.png' % stId
+    logger.debug('image_url = %s' % image_url)
+    details.append('<img src="{}" class="img-fluid" alt="" srcset="">'.format(image_url))
+
+    result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
+
+    return HttpResponse(json.dumps(result))
+
+def get_kegg_info(stId):
+    k = KEGG()
+    data = k.get(stId)
+    dict_data = k.parse(data)
+    return dict_data
 
 def gnps_analysis(request):
     if request.method != 'POST':

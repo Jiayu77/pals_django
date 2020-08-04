@@ -13,6 +13,9 @@
     <!-- bootstrap-table -->
     <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-table/1.17.1/bootstrap-table.css" rel="stylesheet">
 
+    <!-- font font-awesome -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.14.0/css/all.min.css" rel="stylesheet">
+
     <title>Pathway Analysis</title>
 </head>
 
@@ -133,6 +136,7 @@
                         <div class="col-md-12">
                             <div id="toolbar" style="margin: 0;"></div>
                             <table class="table table-hover" id="result-table"
+                                data-unique-id="header-0"
                                 data-toolbar="#toolbar"
                                 data-pagination="true"
                                 data-search="true"
@@ -150,6 +154,29 @@
         </div>
 
     </div>
+
+    <!-- modal detail -->
+    <div class="modal fade"  tabindex="-1" role="dialog" id="modal-detail">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Detail</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" id="modal-detail-content">
+                <h4>map00130: Ubiquinone and other terpenoid-quinone biosynthesis [<a href="https://www.genome.jp/dbget-bin/www_bget?map00130" target="_blank" rel="noopener noreferrer">Info</a>]</h4>
+                <p>p-value: 0.001586</p>
+                <p>Formula Hits: 6</p>
+                <p>Summary:</p>
+                <p>CLASS : Metabolism; Metabolism of cofactors and vitamins</p>
+                <img src="https://www.genome.jp/kegg/pathway/map/map00130.png" class="img-fluid" alt="" srcset="">
+            </div>
+          </div>
+        </div>
+      </div>
+    <!-- modal detail -->
 
     <div id="example_message" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="3000" style="width: 200px;" >
     <div class="toast-header">
@@ -184,6 +211,11 @@
     <script src="https://unpkg.com/bootstrap-table@1.17.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
 
     <script>
+        // ---------------- init global parameters ----------------
+        let bootstrap_table = null;
+
+        // ---------------- init global parameters ----------------
+
         // display loading animation
         function display_loading_animation() {
             $("#start_status").hide();
@@ -220,6 +252,106 @@
         }
         // show message or error
 
+        // display details
+        function display_detail(index) {
+            console.log('display index:', index);
+
+            // get this row data
+            let row_header = $('#result-table').bootstrapTable('getRowByUniqueId', index);
+            console.log('row header=', row_header)
+            
+            // replay row key by real names
+            let columns = $('#result-table').bootstrapTable('getVisibleColumns');
+            console.log('columns=',columns);
+            let column_dict = {};
+            columns.forEach(column => {
+                column_dict[column["field"]]=column["title"];
+            });
+            console.log('column dict=',column_dict);
+
+            let row = {}
+            for (const key in row_header) {
+                const element = row_header[key];
+                const new_key = column_dict[key];
+                row[new_key] = element;
+            }
+
+            // set taget keys
+            row["p-value"]=row["beer1/beer2 p-value"];
+            row["Formula Hits"]=row["F_coverage"];
+
+            console.log('row=',row);
+            let pathway_name = row['pw_name'];
+            console.log('pathway_name=',pathway_name);
+            let id = index;
+            console.log('id=',id);
+
+            // ask for backend data
+            // get csrf token
+            let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
+            // get csrf token
+
+            let data = {
+                csrfmiddlewaretoken: csrfmiddlewaretoken,
+                row: JSON.stringify(row),
+                pathway_name: pathway_name,
+                id: id
+            };
+
+            // get all inputs, then post and get result
+            // if error, just show errors
+            // if success, just show tables
+            $.ajax({
+                url: "{% url 'pals_viewer:show_kegg_diagram' %}",
+                type: "POST",
+                data: data,
+                dataType: "json",
+                success: function (data) {
+                    console.log(data);
+                    let details = data.data.details;
+                    $('#modal-detail-content').html(details);
+                    $('#modal-detail').modal('show');
+                },
+                error: function (jqXHR, textStatus, err) {
+                    console.log(arguments);
+                    remove_loading_animation();
+                    show_message('Error', err);
+                },
+                complete: function (jqXHR, textStatus) {
+                    console.log(textStatus);
+                    remove_loading_animation();
+                    // show_message('Info', 'Done!');
+                },
+                statusCode: {
+                    '403': function (jqXHR, textStatus, err) {
+                        console.log(arguments);
+                        remove_loading_animation();
+                        show_message('Error', err);
+                    },
+                    '400': function (jqXHR, textStatus, err) {
+                        console.log(arguments);
+                        remove_loading_animation();
+                        show_message('Error', err);
+                    }
+                }
+            });
+        }
+        // display details
+
+        // display single row detail
+        function operateFormatter(value, row, index) {
+            console.log('index',index,'row=',row);
+            return [
+            '<a class="view" href="javascript:void(0)" onclick="display_detail(\''+row["header-0"]+'\')" title="View">',
+            // '<a class="view" href="javascript:void(0)" onclick="display_detail(\''+row["header-0"]+'\')" title="View">',
+            '<i class="fa fa-eye"></i>',
+            ' ',
+            value,
+            '</a>  ',
+            ].join('')
+        }
+        // display single row detail
+
         // display table
         function display_table(headers, rows) {
 
@@ -243,11 +375,16 @@
             let columns = new Array();
             for (let i = 0; i < headers.length; i++) {
                 const element = headers[i];
+
                 let column = {
                     "title": element,
                     "field": "header-"+i,
-                    "sortable": true
+                    "sortable": true,
                 };
+
+                if (i == 1) {
+                    column["formatter"] = operateFormatter
+                }
                 columns.push(column);
             }
 
@@ -263,7 +400,7 @@
             });
 
             // init table
-            result_table.bootstrapTable('destroy').bootstrapTable({
+            bootstrap_table = result_table.bootstrapTable('destroy').bootstrapTable({
                 showExport: true,
                 exportDataType: "all",
                 exportTypes: ['json', 'csv', 'txt'],
