@@ -183,17 +183,17 @@ def analysis(request):
         return None
 
     # get data from POST
-    token=request.POST.get('token')
-    analysis_id=int(request.POST.get('analysis_id'))
-    experimental_design=request.POST.get('experimental_design')
+    int_df_filename=request.POST.get('keypath_int_df_filename')
+    annotation_df_filename=request.POST.get('keypath_annotation_df_filename')
+    experimental_design=json.loads(request.POST.get('experimental_design'))
     pathway_analysis_method=request.POST.get('pathway_analysis_method')
     database=request.POST.get('database')
     reactome_species=request.POST.get('reactome_species')
     reactome_metabolic_pathway_only=request.POST.get('reactome_metabolic_pathway_only')
     reactome_query=request.POST.get('reactome_query')
 
-    print('token=', token)
-    print('analysis_id=', analysis_id)
+    print('int_df_filename=', int_df_filename)
+    print('annotation_df_filename=', annotation_df_filename)
     print('experimental_design=', experimental_design)
     print('pathway_analysis_method=', pathway_analysis_method)
     print('database=', database)
@@ -201,9 +201,12 @@ def analysis(request):
     print('reactome_metabolic_pathway_only=', reactome_metabolic_pathway_only)
     print('reactome_query=', reactome_query)
 
-    # download data from PiMP
-    int_df, annotation_df, experimental_design = download_from_pimp(token, PIMP_HOST, analysis_id, 'kegg')
-    print('experimental design:', experimental_design)
+    # load data from csv and reset first row as index
+    # we must set first row as index, because the original table is it
+    int_df = pd.read_csv(settings.MEDIA_ROOT+'/'+int_df_filename)
+    int_df.set_index('row_id', inplace=True)
+    annotation_df = pd.read_csv(settings.MEDIA_ROOT+'/'+annotation_df_filename)
+    annotation_df.set_index('row_id', inplace=True)
 
     # set data source
     ds = DataSource(int_df, annotation_df, experimental_design, database, reactome_species=reactome_species, reactome_metabolic_pathway_only=reactome_metabolic_pathway_only, reactome_query=reactome_query)

@@ -478,8 +478,10 @@
             display_loading_animation('#analysis');
 
             // get all inputs, then post and get result
-            let token = $("[name='token']")[0].value;
-            let analysis_id = $("[name='analysis_id']")[0].value;
+            // let token = $("[name='token']")[0].value;
+            // let analysis_id = $("[name='analysis_id']")[0].value;
+            let keypath_int_df_filename = $("[name='keypath_int_df_filename']").val();
+            let keypath_annotation_df_filename = $("[name='keypath_annotation_df_filename']").val();
             let experimental_design = $("[name='experimental_design']")[0].value;
             let pathway_analysis_method = $("[name='pathway_analysis_method']").val();
             let database = $("[name='database']").val();
@@ -498,8 +500,8 @@
             // get csrf token
 
             // debug
-            window.console.log('token=', token)
-            window.console.log('analysis_id=', analysis_id)
+            window.console.log('keypath_int_df_filename=', keypath_int_df_filename)
+            window.console.log('keypath_annotation_df_filename=', keypath_annotation_df_filename)
             window.console.log('experimental_design=', experimental_design)
             window.console.log('pathway_analysis_method=', pathway_analysis_method)
             window.console.log('database=', database)
@@ -509,8 +511,8 @@
             // debug
             let data = {
                 csrfmiddlewaretoken: csrfmiddlewaretoken,
-                token: token,
-                analysis_id: analysis_id,
+                keypath_int_df_filename: keypath_int_df_filename,
+                keypath_annotation_df_filename: keypath_annotation_df_filename,
                 experimental_design: experimental_design,
                 pathway_analysis_method: pathway_analysis_method,
                 database: database,
