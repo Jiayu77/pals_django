@@ -298,19 +298,35 @@
                 id: id
             };
 
+            let token = $("[name='token']")[0].value;
+            let database = $("[name='database']").val();
+
+            if (database == '{{KEGG}}') {
+                let url = "{% url 'pals_viewer:show_kegg_diagram' %}"
+            } else {
+                let url = "{% url 'pals_viewer:show_reactome_diagram' %}"
+                data['token'] = token;
+            }
+
             // get all inputs, then post and get result
             // if error, just show errors
             // if success, just show tables
             $.ajax({
-                url: "{% url 'pals_viewer:show_kegg_diagram' %}",
+                url: url,
                 type: "POST",
                 data: data,
                 dataType: "json",
                 success: function (data) {
                     console.log(data);
-                    let details = data.data.details;
-                    $('#modal-detail-content').html(details);
-                    $('#modal-detail').modal('show');
+                    let status = data.status;
+                    if (status == 'success') {
+                        let details = data.data.details;
+                        $('#modal-detail-content').html(details);
+                        $('#modal-detail').modal('show');
+                    } else {
+                        let message = data.message;
+                        show_message('Error', message);
+                    }
                 },
                 error: function (jqXHR, textStatus, err) {
                     console.log(arguments);

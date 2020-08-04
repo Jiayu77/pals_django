@@ -227,11 +227,74 @@ def show_kegg_diagram(request):
 
     return HttpResponse(json.dumps(result))
 
+def show_reactome_diagram(request):
+    if request.method != 'POST':
+        return None
+    
+    content_dict = {}
+    details = []
+    
+    # get data from POST
+    token=request.POST.get('token', None)
+    id=request.POST.get('id') # pathway index of row of table
+    pathway_name=request.POST.get('pathway_name') # pathway name of selected row of table
+    row=json.loads(request.POST.get('row')) # the select row of table
+    stId=id
+    print('row=',row)
+
+    # get reactome info
+    status_code, json_response = get_reactome_info(stId)
+    if status_code != 200:
+        result = {'status':'error', 'message':'Get reactome info fail!', 'data':{'details':[]}}
+        return HttpResponse(json.dumps(result))
+
+    # calculate information
+    label = '%s: %s' % (stId, pathway_name)
+    info_url = 'https://reactome.org/content/detail/%s' % stId
+
+    if token is None:
+        header = '<h3>{} [<a href="{}" target="_blank" rel="noopener noreferrer">Info</a>]</h3>'.format(label, info_url)
+    else:
+        viewer_url = 'https://reactome.org/PathwayBrowser/#/%s&DTAB=AN&ANALYSIS=%s' % (stId, token)
+
+        header = '<h3>{} [<a href="{}" target="_blank" rel="noopener noreferrer">Info</a>] [<a href="{}" target="_blank" rel="noopener noreferrer">Viewer</a>]</h3>'.format(label, info_url, viewer_url)
+    details.append(header)
+
+    for summation in json_response['summation']:
+        details.append('<p>{}</p>'.format(summation['text']))
+
+    image_url = 'https://reactome.org/ContentService/exporter/diagram/%s.png?quality=8&diagramProfile=standard&analysisProfile=strosobar' % stId
+    if token is not None:
+        image_url += '&token=%s&resource=TOTAL&expColumn=0' % token
+
+    logger.debug('image_url = %s' % image_url)
+    details.append('<img src="{}" class="img-fluid" alt="" srcset="">'.format(image_url))
+
+    result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
+
+    return HttpResponse(json.dumps(result))
+
 def get_kegg_info(stId):
     k = KEGG()
     data = k.get(stId)
     dict_data = k.parse(data)
     return dict_data
+
+def get_reactome_info(stId):
+    # refer to https://reactome.org/dev/content-service
+    url = 'https://reactome.org/ContentService/data/query/%s' % stId
+    logger.debug('Reactome URL: ' + url)
+
+    # make a GET request to Reactome Content service
+    response = requests.get(url)
+    logger.debug('Response status code = %d' % response.status_code)
+
+    status_code = response.status_code
+    if status_code == 200:
+        json_response = json.loads(response.text)
+    else:
+        json_response = None
+    return status_code, json_response
 
 def gnps_analysis(request):
     if request.method != 'POST':

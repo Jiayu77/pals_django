@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('analysis', views.analysis, name='analysis'),
     path('pathway/show_kegg_diagram', views.show_kegg_diagram, name='show_kegg_diagram'),
+    path('pathway/show_reactome_diagram', views.show_reactome_diagram, name='show_reactome_diagram'),
 
     # GNPS analysis
     path('gnps/index', views.gnps_index, name='gnps_index'),
