@@ -122,6 +122,60 @@ def ms2lda_index(request):
 
     return render(request,'pals_viewer/ms2lda_index.html', content_dict)
 
+def keypath_get_data(request):
+    """
+    If data type is token or account, connect to remote host and download data to local.
+    If data type is file, just save them to local.
+
+    Return the local file name, column names.
+    """
+    if request.method != 'POST':
+        return None
+    
+    # get data from POST
+    token=request.POST.get('token')
+    analysis_id=int(request.POST.get('analysis_id'))
+    data_type=request.POST.get('data_type') # data type can be token, account and file
+
+    print('token=', token)
+    print('analysis_id=', analysis_id)
+    print('data_type=', data_type)
+
+    if data_type == 'token':
+        # get data by token
+        # download data from PiMP
+        int_df, annotation_df, experimental_design = download_from_pimp(token, PIMP_HOST, analysis_id, 'kegg')
+
+        # save data to local
+        int_df_filename = save_dataframe_to_csv(int_df, 'int_df.csv')
+        annotation_df_filename = save_dataframe_to_csv(annotation_df, 'annotation_df.csv')
+
+        # get column names
+        int_df_columns = int_df.columns.to_list()
+        annotation_df_columns = annotation_df.columns.to_list()
+
+        result = {'status':'success', 'message':'Load data done!', 'data':{
+            'int_df': {'filename': int_df_filename, 'columns': int_df_columns},
+            'annotation_df': {'filename': annotation_df_filename, 'columns': annotation_df_columns},
+            'experimental_design': experimental_design
+        }}
+        return HttpResponse(json.dumps(result))
+    elif data_type == 'account':
+        pass
+    elif data_type == 'file':
+        pass
+    else:
+        result = {'status':'error', 'message':'Illegal data type!', 'data':{}}
+        return HttpResponse(json.dumps(result))
+
+def save_dataframe_to_csv(df, oldfilename):
+    # save data to local
+    now_time = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+    newfilename = oldfilename.replace(".", "_{}.".format(now_time))
+    newfilepath = settings.MEDIA_ROOT+'/'+newfilename
+    df.to_csv(newfilepath)
+    print('saved {} to local:{}'.format(oldfilename, newfilepath))
+    return newfilename
 
 def analysis(request):
 

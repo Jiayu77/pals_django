@@ -7,6 +7,7 @@ urlpatterns = [
     # pathway analysis
     path('', views.index, name='index'),
     path('analysis', views.analysis, name='analysis'),
+    path('pathway/get_data', views.keypath_get_data, name='keypath_get_data'),
     path('pathway/show_kegg_diagram', views.show_kegg_diagram, name='show_kegg_diagram'),
     path('pathway/show_reactome_diagram', views.show_reactome_diagram, name='show_reactome_diagram'),
 

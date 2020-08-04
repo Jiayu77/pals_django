@@ -73,11 +73,16 @@
                     </div>
                     <div class="row">
                         <div class="col-md-8">
-                            <div class="form-group"><label>Experimental Design</label><textarea class="form-control"
-                                    rows="3" name="experimental_design"></textarea></div>
+                            <div class="form-group"><label>Experimental Design</label><textarea class="form-control" rows="3" name="experimental_design"></textarea></div>
                         </div>
                     </div>
                     <!-- pimp setting -->
+                    <!-- get data -->
+                    <div class="row">
+                        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2"
+                                id="get_data"><span id="get_data_start">Get Data</span><span id="get_data_running"><span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span> Running...</span></button></div>
+                    </div>
+                    <!-- get data -->
 
                     <!-- analysis method select -->
                     <div class="row">
@@ -87,6 +92,8 @@
                     </div>
                     <div class="row">
                         <div class="col-md-4">
+                            <input type="hidden" name="keypath_int_df_filename">
+                            <input type="hidden" name="keypath_annotation_df_filename">
                             <div class="form-group"><label>Pathway Analysis Method</label>
                                 <select name="pathway_analysis_method" class="form-control" required="required">
                                     <option>PLAGE</option>
@@ -118,8 +125,7 @@
                     </div>
                     <!-- submit -->
                     <div class="row">
-                        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2"
-                                id="start_analysis"><span id="start_status">Start Analysis And Get Results</span><span id="running_status"><span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span> Running...</span></button></div>
+                        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2" id="analysis"><span id="analysis_start">Start Analysis And Get Results</span><span id="analysis_running"><span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span> Running...</span></button></div>
                     </div>
                     <!-- submit -->
                     <!-- analysis method select -->
@@ -217,18 +223,22 @@
         // ---------------- init global parameters ----------------
 
         // display loading animation
-        function display_loading_animation() {
-            $("#start_status").hide();
-            $("#running_status").show();
-            $("#start_analysis").attr("disabled", true);
+        function display_loading_animation(button_id) {
+            let start_icon = button_id+'_start';
+            let running_icon = button_id+'_running';
+            $(start_icon).hide();
+            $(running_icon).show();
+            $(button_id).attr("disabled", true);
         }
         // display loading animation
 
         // remove loading animation
-        function remove_loading_animation() {
-            $("#start_status").show();
-            $("#running_status").hide();
-            $("#start_analysis").removeAttr("disabled");
+        function remove_loading_animation(button_id) {
+            let start_icon = button_id+'_start';
+            let running_icon = button_id+'_running';
+            $(start_icon).show();
+            $(running_icon).hide();
+            $(button_id).removeAttr("disabled");
         }
         // remove loading animation
 
@@ -301,10 +311,11 @@
             let token = $("[name='token']")[0].value;
             let database = $("[name='database']").val();
 
+            let url = ''
             if (database == '{{KEGG}}') {
-                let url = "{% url 'pals_viewer:show_kegg_diagram' %}"
+                url = "{% url 'pals_viewer:show_kegg_diagram' %}"
             } else {
-                let url = "{% url 'pals_viewer:show_reactome_diagram' %}"
+                url = "{% url 'pals_viewer:show_reactome_diagram' %}"
                 data['token'] = token;
             }
 
@@ -330,23 +341,23 @@
                 },
                 error: function (jqXHR, textStatus, err) {
                     console.log(arguments);
-                    remove_loading_animation();
+                    remove_loading_animation('#analysis');
                     show_message('Error', err);
                 },
                 complete: function (jqXHR, textStatus) {
                     console.log(textStatus);
-                    remove_loading_animation();
+                    remove_loading_animation('#analysis');
                     // show_message('Info', 'Done!');
                 },
                 statusCode: {
                     '403': function (jqXHR, textStatus, err) {
                         console.log(arguments);
-                        remove_loading_animation();
+                        remove_loading_animation('#analysis');
                         show_message('Error', err);
                     },
                     '400': function (jqXHR, textStatus, err) {
                         console.log(arguments);
-                        remove_loading_animation();
+                        remove_loading_animation('#analysis');
                         show_message('Error', err);
                     }
                 }
@@ -426,14 +437,45 @@
         }
         // display table
 
+        // load keypath data from localstorage
+        function load_keypath_data_from_local() {
+            let keypath_int_df = localStorage.getItem("keypath_int_df");
+            let keypath_annotation_df = localStorage.getItem("keypath_annotation_df");
+            let keypath_experimental_design = localStorage.getItem("keypath_experimental_design");
+
+            if (keypath_int_df != null) {
+                keypath_int_df = JSON.parse(keypath_int_df);
+                console.log('read keypath int df:', keypath_int_df);
+
+                $("[name='keypath_int_df_filename']").val(keypath_int_df.filename);
+            }
+
+            if (keypath_annotation_df != null) {
+                keypath_annotation_df = JSON.parse(keypath_annotation_df);
+                console.log('read keypath annotation df:', keypath_annotation_df);
+                $("[name='keypath_annotation_df_filename']").val(keypath_annotation_df.filename);
+            }
+
+            if (keypath_experimental_design != null) {
+                // keypath_experimental_design = JSON.parse(keypath_experimental_design);
+                console.log('read keypath annotation df:', keypath_experimental_design);
+                $("[name='experimental_design']").val(keypath_experimental_design);
+            }
+        }
+        // load keypath data from localstorage
+
         // 1. at first, we need to set the button to correct status
-        remove_loading_animation();
+        remove_loading_animation('#analysis');
+        remove_loading_animation('#get_data');
+
+        // loading localStorage cache data
+        load_keypath_data_from_local();
 
         // 2. binding the click event to button
         //    if click the button, we need to submit data
-        $('#start_analysis').click(function () {
+        $('#analysis').click(function () {
             // display loading animation
-            display_loading_animation();
+            display_loading_animation('#analysis');
 
             // get all inputs, then post and get result
             let token = $("[name='token']")[0].value;
@@ -491,34 +533,117 @@
                     let headers = table.headers;
                     let rows = table.rows;
                     display_table(headers, rows);
-                    remove_loading_animation();
+                    remove_loading_animation('#analysis');
                     show_message('Info', data.message);
                 },
                 error: function (jqXHR, textStatus, err) {
                     console.log(arguments);
-                    remove_loading_animation();
+                    remove_loading_animation('#analysis');
                     show_message('Error', err);
                 },
                 complete: function (jqXHR, textStatus) {
                     console.log(textStatus);
-                    remove_loading_animation();
+                    remove_loading_animation('#analysis');
                     // show_message('Info', 'Done!');
                 },
                 statusCode: {
                     '403': function (jqXHR, textStatus, err) {
                         console.log(arguments);
-                        remove_loading_animation();
+                        remove_loading_animation('#analysis');
                         show_message('Error', err);
                     },
                     '400': function (jqXHR, textStatus, err) {
                         console.log(arguments);
-                        remove_loading_animation();
+                        remove_loading_animation('#analysis');
                         show_message('Error', err);
                     }
                 }
             });
         });
 
+        // 3. binding the click event to button
+        //    if click the button, we need to get data from remote
+        $('#get_data').click(function () {
+            // display loading animation
+            display_loading_animation('#get_data');
+
+            // get all inputs, then post and get result
+            let token = $("[name='token']")[0].value;
+            let analysis_id = $("[name='analysis_id']")[0].value;
+            let data_type = 'token';
+
+            // get csrf token
+            let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
+            // get csrf token
+
+            // debug
+            window.console.log('token=', token)
+            window.console.log('analysis_id=', analysis_id)
+            window.console.log('data_type=', data_type)
+            // debug
+            let data = {
+                csrfmiddlewaretoken: csrfmiddlewaretoken,
+                token: token,
+                analysis_id: analysis_id,
+                data_type: data_type
+            };
+
+            // get all inputs, then post and get result
+            // if error, just show errors
+            // if success, just show tables
+            $.ajax({
+                url: "{% url 'pals_viewer:keypath_get_data' %}",
+                type: "POST",
+                data: data,
+                dataType: "json",
+                success: function (data) {
+                    console.log(data);
+                    let status = data.status;
+                    
+                    if (status == 'success') {
+                        // save data to local
+                        let int_df = data.data.int_df;
+                        let annotation_df = data.data.annotation_df;
+                        let experimental_design = data.data.experimental_design;
+                        localStorage.setItem("keypath_int_df", JSON.stringify(int_df));
+                        localStorage.setItem("keypath_annotation_df", JSON.stringify(annotation_df));
+                        localStorage.setItem("keypath_experimental_design", JSON.stringify(experimental_design));
+                        console.log('save int_df and annotation_df to local...');
+
+                        // load data to page
+                        load_keypath_data_from_local();
+
+                        remove_loading_animation('#get_data');
+                        show_message('Info', data.message);
+                    } else {
+                        remove_loading_animation('#get_data');
+                        show_message('Error', data.message);
+                    }
+                },
+                error: function (jqXHR, textStatus, err) {
+                    console.log(arguments);
+                    remove_loading_animation('#get_data');
+                    show_message('Error', err);
+                },
+                complete: function (jqXHR, textStatus) {
+                    console.log(textStatus);
+                    remove_loading_animation('#get_data');
+                    // show_message('Info', 'Done!');
+                },
+                statusCode: {
+                    '403': function (jqXHR, textStatus, err) {
+                        console.log(arguments);
+                        remove_loading_animation('#get_data');
+                        show_message('Error', err);
+                    },
+                    '400': function (jqXHR, textStatus, err) {
+                        console.log(arguments);
+                        remove_loading_animation('#get_data');
+                        show_message('Error', err);
+                    }
+                }
+            });
+        });
     </script>
 </body>
 
