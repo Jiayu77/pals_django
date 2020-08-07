@@ -49,7 +49,12 @@ def index(request):
     content_dict['databases'] = databases
     content_dict['KEGG'] = DATABASE_PIMP_KEGG
     content_dict['reactome_species'] = reactome_species
-    content_dict['local_token'] = get_pimp_API_token_from_env().strip()
+
+    try:
+        content_dict['local_token'] = get_pimp_API_token_from_env().strip()
+    except:
+        print("not found pimp token from environment variable")
+        content_dict['local_token'] = ''
 
     return render(request,'pals_viewer/pathway_index.html', content_dict)
 
@@ -155,6 +160,8 @@ def keypath_get_data(request):
         int_df_columns = int_df.columns.to_list()
         annotation_df_columns = annotation_df.columns.to_list()
 
+        # TODO:save token to local
+
         result = {'status':'success', 'message':'Load data done!', 'data':{
             'int_df': {'filename': int_df_filename, 'columns': int_df_columns},
             'annotation_df': {'filename': annotation_df_filename, 'columns': annotation_df_columns},
@@ -163,8 +170,31 @@ def keypath_get_data(request):
         return HttpResponse(json.dumps(result))
     elif data_type == 'account':
         pass
-    elif data_type == 'file':
-        pass
+    elif data_type == 'upload_file':
+        int_df=request.FILES.get('int_csv')
+        annotation_df=request.FILES.get('annotation_csv')
+        experimental_design=""
+
+        # save data to local
+        int_df_filename = save_upload_file_to_csv(int_df, 'int_df.csv')
+        annotation_df_filename = save_upload_file_to_csv(annotation_df, 'annotation_df.csv')
+
+        # read data and transfer them to dataframe
+        int_df = pd.read_csv(settings.MEDIA_ROOT+'/'+int_df_filename)
+        int_df.set_index('row_id', inplace=True)
+        annotation_df = pd.read_csv(settings.MEDIA_ROOT+'/'+annotation_df_filename)
+        annotation_df.set_index('row_id', inplace=True)
+
+        # get column names
+        int_df_columns = int_df.columns.to_list()
+        annotation_df_columns = annotation_df.columns.to_list()
+
+        result = {'status':'success', 'message':'Load data done!', 'data':{
+            'int_df': {'filename': int_df_filename, 'columns': int_df_columns},
+            'annotation_df': {'filename': annotation_df_filename, 'columns': annotation_df_columns},
+            'experimental_design': experimental_design
+        }}
+        return HttpResponse(json.dumps(result))
     else:
         result = {'status':'error', 'message':'Illegal data type!', 'data':{}}
         return HttpResponse(json.dumps(result))
@@ -176,6 +206,18 @@ def save_dataframe_to_csv(df, oldfilename):
     newfilepath = settings.MEDIA_ROOT+'/'+newfilename
     df.to_csv(newfilepath)
     print('saved {} to local:{}'.format(oldfilename, newfilepath))
+    return newfilename
+
+def save_upload_file_to_csv(upload_file, oldfilename):
+    # save data to local
+    now_time = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+    newfilename = oldfilename.replace(".", "_{}.".format(now_time))
+    newfilepath = settings.MEDIA_ROOT+'/'+newfilename
+    with open(newfilepath, 'wb+') as destination:
+        for chunk in upload_file.chunks():
+            destination.write(chunk)
+    print('saved {} to local:{}'.format(oldfilename, newfilepath))
+
     return newfilename
 
 def analysis(request):
@@ -384,16 +426,7 @@ def gnps_analysis(request):
 
     # save and read metadata csv file
     # reset new file name
-    now_time = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
-    oldfilename = metadata.name
-    newfilename = oldfilename.replace(".", "_{}.".format(now_time))
-    newfilepath = settings.MEDIA_ROOT+'/'+newfilename
-    with open(newfilepath, 'wb+') as destination:
-        for chunk in metadata.chunks():
-            destination.write(chunk)
-    
-    print('saved {} to local:{}'.format(oldfilename, newfilepath))
-    metadata_file = newfilepath
+    metadata_file = save_upload_file_to_csv(metadata, metadata.name)
     metadata_df = pd.read_csv(metadata_file)
 
     loader = GNPSLoader(database, gnps_url, metadata_df, comparisons)
