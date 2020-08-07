@@ -9,7 +9,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"
         integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    
+
     <!-- bootstrap-table -->
     <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-table/1.17.1/bootstrap-table.css" rel="stylesheet">
 
@@ -61,28 +61,109 @@
                             <h2>1. Please set data source</h2>
                         </div>
                     </div>
+                    <!-- fetch data -->
+
                     <div class="row">
-                        {% csrf_token %}
-                        <div class="col-md-4">
-                            <div class="form-group"><label>Token</label><input type="text" class="form-control" name="token" value=""></div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group"><label>Analysis ID</label><input type="text" class="form-control" name="analysis_id" value="1321">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link active" id="by_account_tab" data-toggle="tab" href="#by_account"
+                                        role="tab" aria-controls="by_account" aria-selected="true">By Account</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" id="by_upload_file_tab" data-toggle="tab" href="#by_upload_file"
+                                        role="tab" aria-controls="by_upload_file" aria-selected="false">Upload File</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" id="by_token_tab" data-toggle="tab" href="#by_token" role="tab"
+                                        aria-controls="contact" aria-selected="false">By Token</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                {% csrf_token %}
+                                <div class="tab-pane fade show active" id="by_account" role="tabpanel"
+                                    aria-labelledby="by_account_tab">
+
+                                    <div class="row">
+
+                                        <div class="col-md-4">
+                                            <div class="form-group mt-2"><label>Username</label><input type="text"
+                                                    class="form-control" name="username" value=""></div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="form-group mt-2"><label>Analysis ID</label><input type="text"
+                                                    class="form-control" name="by_account_analysis_id" value="1321">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group"><label>Password</label><input type="password"
+                                                    class="form-control" name="password" value=""></div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                <div class="tab-pane fade" id="by_upload_file" role="tabpanel"
+                                    aria-labelledby="by_upload_file_tab">
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group mt-2"><label>Intensity CSV</label><input type="file"
+                                                    class="form-control-file" name="int_df" value="1321">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group mt-2"><label>Annotation CSV</label><input type="file"
+                                                    class="form-control-file" name="annotation_df" value="1321">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="tab-pane fade" id="by_token" role="tabpanel" aria-labelledby="by_token_tab">
+                                    <div class="row">
+
+                                        <div class="col-md-4">
+                                            <div class="form-group mt-2"><label>Token</label><input type="text"
+                                                    class="form-control" name="token" value="{{local_token}}"></div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group mt-2"><label>Analysis ID</label><input type="text"
+                                                    class="form-control" name="analysis_id" value="1321">
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- fetch data -->
+
+                    <!-- get data -->
+                    <div class="row">
+                        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2" id="get_data"><span
+                                    id="get_data_start">Get Data</span><span id="get_data_running"><span
+                                        class="spinner-border spinner-border-lg" role="status"
+                                        aria-hidden="true"></span>
+                                    Running...</span></button></div>
+                    </div>
+                    <!-- get data -->
+
                     <div class="row">
                         <div class="col-md-8">
-                            <div class="form-group"><label>Experimental Design</label><textarea class="form-control" rows="3" name="experimental_design"></textarea></div>
+                            <div class="form-group"><label>Experimental Design</label><textarea class="form-control"
+                                    rows="3" name="experimental_design"></textarea></div>
                         </div>
                     </div>
                     <!-- pimp setting -->
-                    <!-- get data -->
-                    <div class="row">
-                        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2"
-                                id="get_data"><span id="get_data_start">Get Data</span><span id="get_data_running"><span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span> Running...</span></button></div>
-                    </div>
-                    <!-- get data -->
+
 
                     <!-- analysis method select -->
                     <div class="row">
@@ -125,7 +206,10 @@
                     </div>
                     <!-- submit -->
                     <div class="row">
-                        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2" id="analysis"><span id="analysis_start">Start Analysis And Get Results</span><span id="analysis_running"><span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span> Running...</span></button></div>
+                        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2" id="analysis"><span
+                                    id="analysis_start">Start Analysis And Get Results</span><span
+                                    id="analysis_running"><span class="spinner-border spinner-border-lg" role="status"
+                                        aria-hidden="true"></span> Running...</span></button></div>
                     </div>
                     <!-- submit -->
                     <!-- analysis method select -->
@@ -141,14 +225,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div id="toolbar" style="margin: 0;"></div>
-                            <table class="table table-hover" id="result-table"
-                                data-unique-id="header-0"
-                                data-toolbar="#toolbar"
-                                data-pagination="true"
-                                data-search="true"
-                                data-show-export="true"
-                                data-page-list="[10, 25, 50, 100, all]"
-                            ></table>
+                            <table class="table table-hover" id="result-table" data-unique-id="header-0"
+                                data-toolbar="#toolbar" data-pagination="true" data-search="true"
+                                data-show-export="true" data-page-list="[10, 25, 50, 100, all]"></table>
                             <!-- <div class="table-responsive pd-2 rounded">
                             </div> -->
                         </div>
@@ -162,44 +241,47 @@
     </div>
 
     <!-- modal detail -->
-    <div class="modal fade"  tabindex="-1" role="dialog" id="modal-detail">
+    <div class="modal fade" tabindex="-1" role="dialog" id="modal-detail">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Detail</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detail</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-detail-content">
+                    <h4>map00130: Ubiquinone and other terpenoid-quinone biosynthesis [<a
+                            href="https://www.genome.jp/dbget-bin/www_bget?map00130" target="_blank"
+                            rel="noopener noreferrer">Info</a>]</h4>
+                    <p>p-value: 0.001586</p>
+                    <p>Formula Hits: 6</p>
+                    <p>Summary:</p>
+                    <p>CLASS : Metabolism; Metabolism of cofactors and vitamins</p>
+                    <img src="https://www.genome.jp/kegg/pathway/map/map00130.png" class="img-fluid" alt="" srcset="">
+                </div>
             </div>
-            <div class="modal-body" id="modal-detail-content">
-                <h4>map00130: Ubiquinone and other terpenoid-quinone biosynthesis [<a href="https://www.genome.jp/dbget-bin/www_bget?map00130" target="_blank" rel="noopener noreferrer">Info</a>]</h4>
-                <p>p-value: 0.001586</p>
-                <p>Formula Hits: 6</p>
-                <p>Summary:</p>
-                <p>CLASS : Metabolism; Metabolism of cofactors and vitamins</p>
-                <img src="https://www.genome.jp/kegg/pathway/map/map00130.png" class="img-fluid" alt="" srcset="">
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
     <!-- modal detail -->
 
-    <div id="example_message" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="3000" style="width: 200px;" >
-    <div class="toast-header">
-        <strong class="mr-auto" id="message_type"></strong>
-        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="toast-body" id="message"></div>
+    <div id="example_message" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true"
+        data-autohide="true" data-delay="3000" style="width: 200px;">
+        <div class="toast-header">
+            <strong class="mr-auto" id="message_type"></strong>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body" id="message"></div>
     </div>
 
     <div aria-live="polite" aria-atomic="true">
         <!-- Position it -->
-        <div id="message_list"  style="position: fixed; top: 20px; right: 20px;">
-          <!-- Then put toasts within -->
+        <div id="message_list" style="position: fixed; top: 20px; right: 20px;">
+            <!-- Then put toasts within -->
         </div>
-      </div>
+    </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -214,7 +296,8 @@
     <!-- bootstrap-table -->
     <script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.17.1/dist/bootstrap-table.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-table@1.17.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.17.1/dist/extensions/export/bootstrap-table-export.min.js">
+    </script>
 
     <script>
         // ---------------- init global parameters ----------------
@@ -224,8 +307,8 @@
 
         // display loading animation
         function display_loading_animation(button_id) {
-            let start_icon = button_id+'_start';
-            let running_icon = button_id+'_running';
+            let start_icon = button_id + '_start';
+            let running_icon = button_id + '_running';
             $(start_icon).hide();
             $(running_icon).show();
             $(button_id).attr("disabled", true);
@@ -234,8 +317,8 @@
 
         // remove loading animation
         function remove_loading_animation(button_id) {
-            let start_icon = button_id+'_start';
-            let running_icon = button_id+'_running';
+            let start_icon = button_id + '_start';
+            let running_icon = button_id + '_running';
             $(start_icon).show();
             $(running_icon).hide();
             $(button_id).removeAttr("disabled");
@@ -269,15 +352,15 @@
             // get this row data
             let row_header = $('#result-table').bootstrapTable('getRowByUniqueId', index);
             console.log('row header=', row_header)
-            
+
             // replay row key by real names
             let columns = $('#result-table').bootstrapTable('getVisibleColumns');
-            console.log('columns=',columns);
+            console.log('columns=', columns);
             let column_dict = {};
             columns.forEach(column => {
-                column_dict[column["field"]]=column["title"];
+                column_dict[column["field"]] = column["title"];
             });
-            console.log('column dict=',column_dict);
+            console.log('column dict=', column_dict);
 
             let row = {}
             for (const key in row_header) {
@@ -287,14 +370,14 @@
             }
 
             // set taget keys
-            row["p-value"]=row["beer1/beer2 p-value"];
-            row["Formula Hits"]=row["F_coverage"];
+            row["p-value"] = row["beer1/beer2 p-value"];
+            row["Formula Hits"] = row["F_coverage"];
 
-            console.log('row=',row);
+            console.log('row=', row);
             let pathway_name = row['pw_name'];
-            console.log('pathway_name=',pathway_name);
+            console.log('pathway_name=', pathway_name);
             let id = index;
-            console.log('id=',id);
+            console.log('id=', id);
 
             // ask for backend data
             // get csrf token
@@ -367,14 +450,15 @@
 
         // display single row detail
         function operateFormatter(value, row, index) {
-            console.log('index',index,'row=',row);
+            console.log('index', index, 'row=', row);
             return [
-            '<a class="view" href="javascript:void(0)" onclick="display_detail(\''+row["header-0"]+'\')" title="View">',
-            // '<a class="view" href="javascript:void(0)" onclick="display_detail(\''+row["header-0"]+'\')" title="View">',
-            '<i class="fa fa-eye"></i>',
-            ' ',
-            value,
-            '</a>  ',
+                '<a class="view" href="javascript:void(0)" onclick="display_detail(\'' + row["header-0"] +
+                '\')" title="View">',
+                // '<a class="view" href="javascript:void(0)" onclick="display_detail(\''+row["header-0"]+'\')" title="View">',
+                '<i class="fa fa-eye"></i>',
+                ' ',
+                value,
+                '</a>  ',
             ].join('')
         }
         // display single row detail
@@ -405,7 +489,7 @@
 
                 let column = {
                     "title": element,
-                    "field": "header-"+i,
+                    "field": "header-" + i,
                     "sortable": true,
                 };
 
@@ -419,9 +503,8 @@
             data = [];
             rows.forEach(row => {
                 let tr = {};
-                for (let i=0;i<row.length;i++)
-                {
-                    tr["header-"+i] = row[i];
+                for (let i = 0; i < row.length; i++) {
+                    tr["header-" + i] = row[i];
                 }
                 data.push(tr);
             });
@@ -569,26 +652,63 @@
             // display loading animation
             display_loading_animation('#get_data');
 
+            let data_type = 'token';
+
             // get all inputs, then post and get result
             let token = $("[name='token']")[0].value;
             let analysis_id = $("[name='analysis_id']")[0].value;
-            let data_type = 'token';
+
+            let username = $("[name='username']")[0].value;
+            let password = $("[name='password']")[0].value;
+            let by_account_analysis_id = $("[name='by_account_analysis_id']")[0].value;
+
+            let int_csv = $("[name='int_df']")[0].files[0];
+            let annotation_csv = $("[name='annotation_df']")[0].files[0];
 
             // get csrf token
             let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
             // get csrf token
+
+            // get active tab
+            if ($("#by_token").hasClass("active")) {
+                data_type = 'token';
+            } else if ($("#by_account").hasClass("active")) {
+                data_type = 'account';
+            } else {
+                data_type = 'upload_file';
+            }
+            console.log("get data by type: " + data_type);
 
             // debug
             window.console.log('token=', token)
             window.console.log('analysis_id=', analysis_id)
             window.console.log('data_type=', data_type)
             // debug
-            let data = {
-                csrfmiddlewaretoken: csrfmiddlewaretoken,
-                token: token,
-                analysis_id: analysis_id,
-                data_type: data_type
-            };
+            let data = {};
+            if (data_type == 'upload_file') {
+                data = new FormData();
+                data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
+                data.append('token', token);
+                data.append('analysis_id', analysis_id);
+                data.append('username', username);
+                data.append('password', password);
+                data.append('by_account_analysis_id', by_account_analysis_id);
+                data.append('int_csv', int_csv);
+                data.append('annotation_csv', annotation_csv);
+                data.append('data_type', data_type);
+            } else {
+                data = {
+                    csrfmiddlewaretoken: csrfmiddlewaretoken,
+                    token: token,
+                    analysis_id: analysis_id,
+                    username: username,
+                    password: password,
+                    by_account_analysis_id: by_account_analysis_id,
+                    int_csv: int_csv,
+                    annotation_csv: annotation_csv,
+                    data_type: data_type,
+                };
+            }
 
             // get all inputs, then post and get result
             // if error, just show errors
@@ -598,18 +718,27 @@
                 type: "POST",
                 data: data,
                 dataType: "json",
+                processData: false, // required for file uploading
+                contentType: false, // required for file uploading
                 success: function (data) {
                     console.log(data);
                     let status = data.status;
-                    
+
                     if (status == 'success') {
+                        // debug
+                        remove_loading_animation('#get_data');
+                        show_message('Info', data.message);
+                        // debug
+
                         // save data to local
                         let int_df = data.data.int_df;
                         let annotation_df = data.data.annotation_df;
                         let experimental_design = data.data.experimental_design;
                         localStorage.setItem("keypath_int_df", JSON.stringify(int_df));
-                        localStorage.setItem("keypath_annotation_df", JSON.stringify(annotation_df));
-                        localStorage.setItem("keypath_experimental_design", JSON.stringify(experimental_design));
+                        localStorage.setItem("keypath_annotation_df", JSON.stringify(
+                            annotation_df));
+                        localStorage.setItem("keypath_experimental_design", JSON.stringify(
+                            experimental_design));
                         console.log('save int_df and annotation_df to local...');
 
                         // load data to page
@@ -646,6 +775,7 @@
                 }
             });
         });
+
     </script>
 </body>
 

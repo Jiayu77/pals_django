@@ -49,6 +49,7 @@ def index(request):
     content_dict['databases'] = databases
     content_dict['KEGG'] = DATABASE_PIMP_KEGG
     content_dict['reactome_species'] = reactome_species
+    content_dict['local_token'] = get_pimp_API_token_from_env().strip()
 
     return render(request,'pals_viewer/pathway_index.html', content_dict)
 
