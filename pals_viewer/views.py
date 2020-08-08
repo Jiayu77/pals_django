@@ -11,6 +11,8 @@ from pals.GSEA import GSEA
 from pals.common import *
 from bioservices.kegg import KEGG
 
+import requests
+
 import pandas as pd
 import zipfile
 import seaborn as sns
@@ -355,9 +357,10 @@ def show_reactome_diagram(request):
     if token is None:
         header = '<h3>{} [<a href="{}" target="_blank" rel="noopener noreferrer">Info</a>]</h3>'.format(label, info_url)
     else:
-        viewer_url = 'https://reactome.org/PathwayBrowser/#/%s&DTAB=AN&ANALYSIS=%s' % (stId, token)
-
-        header = '<h3>{} [<a href="{}" target="_blank" rel="noopener noreferrer">Info</a>] [<a href="{}" target="_blank" rel="noopener noreferrer">Viewer</a>]</h3>'.format(label, info_url, viewer_url)
+        # TODO: the token always show invalid, so we cancel it.
+        header = '<h3>{} [<a href="{}" target="_blank" rel="noopener noreferrer">Info</a>]</h3>'.format(label, info_url)
+        # viewer_url = 'https://reactome.org/PathwayBrowser/#/%s&DTAB=AN&ANALYSIS=%s' % (stId, token)
+        # header = '<h3>{} [<a href="{}" target="_blank" rel="noopener noreferrer">Info</a>] [<a href="{}" target="_blank" rel="noopener noreferrer">Viewer</a>]</h3>'.format(label, info_url, viewer_url)
     details.append(header)
 
     for summation in json_response['summation']:
@@ -365,7 +368,9 @@ def show_reactome_diagram(request):
 
     image_url = 'https://reactome.org/ContentService/exporter/diagram/%s.png?quality=8&diagramProfile=standard&analysisProfile=strosobar' % stId
     if token is not None:
-        image_url += '&token=%s&resource=TOTAL&expColumn=0' % token
+        # TODO: the token always show invalid, so we cancel it.
+        # image_url += '&token=%s&resource=TOTAL&expColumn=0' % token
+        pass
 
     logger.debug('image_url = %s' % image_url)
     details.append('<img src="{}" class="img-fluid" alt="" srcset="">'.format(image_url))
