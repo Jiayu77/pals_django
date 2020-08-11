@@ -16,6 +16,10 @@
     <!-- font font-awesome -->
     <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.14.0/css/all.min.css" rel="stylesheet">
 
+    <!-- bootstrap-select -->
+        <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" rel="stylesheet">
+    <!-- bootstrap-select -->
+
     <title>Pathway Analysis</title>
 </head>
 
@@ -158,8 +162,67 @@
 
                     <div class="row">
                         <div class="col-md-8">
-                            <div class="form-group"><label>Experimental Design</label><textarea class="form-control"
-                                    rows="3" name="experimental_design"></textarea></div>
+                            <div class="form-group"><label>Experimental Design</label>
+                                <ul class="nav nav-tabs" id="experimental_design_tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link active" id="group_tab" data-toggle="tab" href="#group" role="tab"
+                                            aria-controls="group" aria-selected="true">1. Add Groups</a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="comparison_tab" data-toggle="tab"
+                                            href="#comparison" role="tab" aria-controls="comparison"
+                                            aria-selected="false">2. Set Comparisons</a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="experimental_design_tab" data-toggle="tab"
+                                            href="#experimental_design" role="tab" aria-controls="experimental_design"
+                                            aria-selected="false">3. View Current Experimental Design</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="experimental_design_tabs_content">
+                                    <div class="tab-pane fade show active" id="group" role="tabpanel" aria-labelledby="group_tab">
+                                        <button type="button"
+                                            class="btn btn-large btn-block btn-success mt-3 mb-3" onclick="add_group()">Add</button>
+                                        <div id="group_toolbar" style="margin: 0;"></div>
+                                        <table class="table table-hover" id="group-table" data-unique-id="header-0"
+                                            data-toolbar="#group_toolbar" data-pagination="true"
+                                            data-page-list="[10, 25, 50, 100, all]">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Columns</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="group-tbody"></tbody>
+                                        </table>
+                                    </div>
+                                    <div class="tab-pane fade" id="comparison" role="tabpanel"
+                                        aria-labelledby="comparison_tab">
+
+                                        <button type="button"
+                                            class="btn btn-large btn-block btn-success mt-3 mb-3" onclick="add_comparison()">Add</button>
+
+                                        <div id="comparison_toolbar" style="margin: 0;"></div>
+                                        <table class="table table-hover" id="comparison-table" data-unique-id="header-0"
+                                            data-toolbar="#comparison_toolbar" data-pagination="true"
+                                            data-page-list="[10, 25, 50, 100, all]">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Case</th>
+                                                    <th>Control</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="comparison-tbody"></tbody>
+                                        </table>
+                                    </div>
+                                    <div class="tab-pane fade" id="experimental_design" role="tabpanel" aria-labelledby="experimental_design_tab">
+                                        <textarea class="form-control mt-3 mb-3" rows="3" name="experimental_design"></textarea>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <!-- pimp setting -->
@@ -240,6 +303,90 @@
 
     </div>
 
+    <!-- modal comparison form -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="modal-comparison">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Comparison</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-comparison-content">
+                    <input type="hidden" name="save_comparison_type">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mt-2"><label>Name</label><input type="text" class="form-control"
+                                    name="comparison_name" value="1321">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mt-2"><label>Case</label>
+                                <select name="comparison_case" class="form-control" required="required"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mt-2"><label>Control</label>
+                                <select name="comparison_control" class="form-control" required="required"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="save_comparison()">Save</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal comparison form -->
+
+    <!-- modal group form -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="modal-group">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Group</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-group-content">
+                    <input type="hidden" name="save_group_type">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mt-2"><label>Name</label><input type="text" class="form-control"
+                                    name="group_name" value="1321">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mt-2"><label>Case</label>
+                                <select name="group_column" class="form-control" required="required" multiple
+                                    data-live-search="true"></select>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="save_group()">Save</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal group form -->
+
     <!-- modal detail -->
     <div class="modal fade" tabindex="-1" role="dialog" id="modal-detail">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
@@ -299,11 +446,204 @@
     <script src="https://unpkg.com/bootstrap-table@1.17.1/dist/extensions/export/bootstrap-table-export.min.js">
     </script>
 
+    <!-- bootstrap-select -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
+    <!-- bootstrap-select -->
+
     <script>
         // ---------------- init global parameters ----------------
         let bootstrap_table = null;
+        let global_comparison = {};
 
         // ---------------- init global parameters ----------------
+
+        // init multi select
+        function init_multiselect() {
+            $("[name='group_column']:first").selectpicker();
+        }
+        // init multi select
+
+        // update this group
+        function update_row(button) {
+
+            let row = button.parent().parent(':first').children();
+            let course_id = row.eq(0).children(":first").attr("data-course_id");
+            $("[name='update_name']")[0].value = row.eq(1).text();
+            $("[name='update_description']")[0].value = row.eq(2).text();
+            $("[name='update_exam_at']")[0].value = row.eq(3).text();
+            let exam_type = row.eq(4).text();
+            $("[name='update_location']")[0].value = row.eq(5).text();
+            $("[name='update_url']")[0].value = row.eq(6).text();
+
+            // select course
+            console.log('update course id: ', course_id);
+            $("[name='update_course_id']").val(course_id);
+
+
+            // select exam type
+            if (exam_type == 'Online') {
+                $("[name='update_exam_type'][value='1']").prop("checked", true);
+            } else {
+                $("[name='update_exam_type'][value='0']").prop("checked", true);
+            }
+
+            // display modal
+            $("#modal-update").modal("show");
+        }
+        // update this group
+
+        // add new group
+        function add_group() {
+            console.log('add group ...');
+
+            // set save type
+            $("[name='save_group_type']")[0].value = 'add';
+
+            // clean all data
+            $("[name='group_name']")[0].value = '';
+
+            // display modal
+            $("#modal-group").modal("show");
+        }
+        // add new group
+
+        // add new comparison
+        function add_comparison() {
+            console.log('add comparison ...');
+
+            // set save type
+            $("[name='save_comparison_type']")[0].value = 'add';
+
+            // clean all data
+            $("[name='comparison_name']")[0].value = '';
+
+            // display modal
+            $("#modal-comparison").modal("show");
+        }
+        // add new comparison
+
+        // save group to comparison select option
+        function save_group() {
+            // get input group data
+            let group_name = $("[name='group_name']")[0].value;
+            let group_column = $("[name='group_column']").val();
+            let save_type = $("[name='save_group_type']")[0].value;
+
+            // add new row to table
+            let new_row = $("<tr></tr>");
+            new_row.append($("<td>"+group_name+"</td>"));
+
+            let column_td = $("<td></td>");
+            group_column.forEach(column => {
+                column_td.append($("<span>"+column+"</span>"));
+            });
+            new_row.append(column_td);
+
+            new_row.append($("<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"delete_group($(this))\">Delete</button></td>"));
+
+            $("#group-tbody").append(new_row);
+            
+            // add new group to comparison select option
+            $("[name='comparison_case']").append("<option>"+group_name+"</option>");
+            $("[name='comparison_control']").append("<option>"+group_name+"</option>");
+
+            // update global group data
+            if (undefined == global_comparison['groups']) {
+                global_comparison['groups'] = {};
+            }
+            global_comparison['groups'][group_name] = group_column;
+
+            // close modal
+            $("#modal-group").modal('hide');
+            
+            console.log('current global comparison:', global_comparison);
+        }
+        // save group to comparison select option
+
+        // delete group
+        function delete_group(button) {
+            // find this group name
+            let row = button.parent().parent(':first').children();
+            let group_name = row.eq(0).text();
+
+            console.log('deleting group :', group_name);
+
+            // delete group name from global comparison
+            delete global_comparison['groups'][group_name];
+
+            // TODO:delete group name from comparison table
+
+            // delete this row
+            button.parent().parent(':first').remove();
+        }
+        // delete group
+        
+        // save comparison and update text
+        function save_comparison() {
+            // get input group data
+            let comparison_control = $("[name='comparison_control']").val();
+            let comparison_case = $("[name='comparison_control']").val();
+            let comparison_name = $("[name='comparison_name']")[0].value;
+
+            // add new row to table
+            let new_row = $("<tr></tr>");
+            new_row.append($("<td>"+comparison_name+"</td>"));
+            new_row.append($("<td>"+comparison_case+"</td>"));
+            new_row.append($("<td>"+comparison_control+"</td>"));
+            new_row.append($("<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"delete_comparison($(this))\">Delete</button></td>"));
+
+            $("#comparison-tbody").append(new_row);
+
+            // update global group data
+
+            let new_comparison = {
+                'name': comparison_name,
+                'case': comparison_case,
+                'control': comparison_control,
+            }
+
+            if (undefined == global_comparison['comparisons']) {
+                global_comparison['comparisons'] = [];
+            }
+            global_comparison['comparisons'].push(new_comparison);
+
+            // update experimental design
+            $("[name='experimental_design']").val(JSON.stringify(global_comparison));
+
+            // close modal
+            $("#modal-comparison").modal('hide');
+            
+            console.log('current global comparison:', global_comparison);
+        }
+        // save comparison and update text
+
+        // delete comparison
+        function delete_comparison(button) {
+            // find this comparison name
+            let row = button.parent().parent(':first').children();
+            let comparison_name = row.eq(0).text();
+
+            console.log('deleting comparison :', comparison_name);
+
+            // delete group name from global comparison
+            let target_comparison_index = -1;
+            global_comparison['comparisons'].forEach((comparison, index) => {
+                if (comparison['name'] == comparision_name) {
+                    target_comparison_index = index;
+                    return false;
+                }
+            });
+
+            global_comparison['comparisons'].splice(target_comparison_index, 1);
+
+            // update experimental design
+            $("[name='experimental_design']").val(JSON.stringify(global_comparison));
+
+            // delete this row
+            button.parent().parent(':first').remove();
+            console.log('current global comparison:', global_comparison);
+        }
+        // delete comparison
 
         // display loading animation
         function display_loading_animation(button_id) {
@@ -531,6 +871,13 @@
                 console.log('read keypath int df:', keypath_int_df);
 
                 $("[name='keypath_int_df_filename']").val(keypath_int_df.filename);
+
+                // reset columns to group select option
+                $("[name='group_column']").empty();
+                let group_select = $("[name='group_column']");
+                keypath_int_df.columns.forEach(column => {
+                    group_select.append($("<option>"+column+"</option>"));
+                });
             }
 
             if (keypath_annotation_df != null) {
@@ -553,6 +900,9 @@
 
         // loading localStorage cache data
         load_keypath_data_from_local();
+
+        // init multi select
+        init_multiselect();
 
         // 2. binding the click event to button
         //    if click the button, we need to submit data
