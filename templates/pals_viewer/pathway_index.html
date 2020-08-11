@@ -290,7 +290,7 @@
                             <div id="toolbar" style="margin: 0;"></div>
                             <table class="table table-hover" id="result-table" data-unique-id="header-0"
                                 data-toolbar="#toolbar" data-pagination="true" data-search="true"
-                                data-show-export="true" data-page-list="[10, 25, 50, 100, all]"></table>
+                                data-show-export="true" data-page-list="[10, 25, 50, 100, all]" data-show-columns="true"></table>
                             <!-- <div class="table-responsive pd-2 rounded">
                             </div> -->
                         </div>
@@ -582,7 +582,7 @@
         function save_comparison() {
             // get input group data
             let comparison_control = $("[name='comparison_control']").val();
-            let comparison_case = $("[name='comparison_control']").val();
+            let comparison_case = $("[name='comparison_case']").val();
             let comparison_name = $("[name='comparison_name']")[0].value;
 
             // add new row to table
