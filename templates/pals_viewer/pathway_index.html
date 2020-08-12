@@ -888,7 +888,7 @@
 
             if (keypath_experimental_design != null) {
                 // keypath_experimental_design = JSON.parse(keypath_experimental_design);
-                console.log('read keypath annotation df:', keypath_experimental_design);
+                console.log('read experimental design:', keypath_experimental_design);
                 $("[name='experimental_design']").val(keypath_experimental_design);
             }
         }
@@ -1033,8 +1033,11 @@
             window.console.log('token=', token)
             window.console.log('analysis_id=', analysis_id)
             window.console.log('data_type=', data_type)
+            window.console.log('csrfmiddlewaretoken=', csrfmiddlewaretoken)
             // debug
             let data = {};
+            let processData = true; // required for file uploading
+            let contentType = 'application/x-www-form-urlencoded'; // required for file uploading
             if (data_type == 'upload_file') {
                 data = new FormData();
                 data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
@@ -1046,6 +1049,8 @@
                 data.append('int_csv', int_csv);
                 data.append('annotation_csv', annotation_csv);
                 data.append('data_type', data_type);
+                processData = false;
+                contentType = false;
             } else {
                 data = {
                     csrfmiddlewaretoken: csrfmiddlewaretoken,
@@ -1068,8 +1073,8 @@
                 type: "POST",
                 data: data,
                 dataType: "json",
-                processData: false, // required for file uploading
-                contentType: false, // required for file uploading
+                processData: processData, // required for file uploading
+                contentType: contentType, // required for file uploading
                 success: function (data) {
                     console.log(data);
                     let status = data.status;
