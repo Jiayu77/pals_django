@@ -523,7 +523,7 @@
                     let status = data.status;
                     if (status == 'success') {
                         let details = data.data.details;
-                        // $('#modal-detail-content').html(details);
+                        $('#modal-detail-content').html(details);
                         $('#modal-detail').modal('show');
                     } else {
                         let message = data.message;
@@ -572,10 +572,10 @@
         // display single row detail
 
         // display table
-        function display_table(headers, rows) {
+        function display_table(headers, rows, table_id="#result-table") {
 
             // clean old table
-            let result_table = $("#result-table");
+            let result_table = $(table_id);
             result_table.empty();
 
             // add header config

@@ -590,29 +590,10 @@ def gnps_show_details(request):
     plot_heatmap_image_filename = plot_heatmap(all_groups, all_samples, intensities_df, member_df, members, row)
     # detail_table = display_member_df(member_df)
 
-    member_df_json = json.loads(member_df.to_json(orient='split'))
-    headers = member_df_json['columns']
-    headers.insert(0, '')
-    
-    rows = []
-    for index, row in zip(member_df_json['index'], member_df_json['data']):
-        row.insert(0, index)
-        rows.append(row)
-
-    table = {
-        'headers': headers,
-        'rows': rows
-    }
-
-    result = {
-        'message':'Analysis done!', 
-        'data':{
-            'table':table,
-        }
-    }
+    if 'link' in member_df.columns:
+        member_df['link'] = member_df['link'].apply(make_clickable)
 
     print('plot_heatmap_image_filename=',plot_heatmap_image_filename)
-    print('table=',table)
 
     details = []
 
@@ -623,14 +604,15 @@ def gnps_show_details(request):
     details.append('<h4>o. of members: {}</h4>'.format(pw_name))
 
     # heatmap
-    image_url = settings.MEDIA_URL+plot_heatmap_image_filename
+    image_url = settings.STATIC_URL+plot_heatmap_image_filename
     logger.debug('image_url = %s' % image_url)
     details.append('<img src="{}" class="img-fluid" alt="" srcset="">'.format(image_url))
 
     # members table
     details.append('<h2>Members</h2>')
+    details.append(member_df.to_html(escape=False))
 
-    result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details, 'table': table}}
+    result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
     return HttpResponse(json.dumps(result))
 
 
@@ -659,6 +641,12 @@ def gnps_show_details(request):
     result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
 
     return HttpResponse(json.dumps(result))
+
+def make_clickable(link):
+    # target _blank to open new window
+    # extract clickable text to display for your link
+    text = 'GNPSLinkout_Network'
+    return f'<a target="_blank" href="{link}">{text}</a>'
 
 def process_gnps_results(df, significant_column):
     # filter results to show only the columns we want
@@ -764,7 +752,7 @@ def plot_heatmap(all_groups, all_samples, intensities_df, member_df, members, ro
     # generate image
     now_time = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
     plog_image_name = 'plot_heatmap_{}.png'.format(now_time)
-    plt.savefig(settings.MEDIA_ROOT+'/'+plog_image_name)
+    plt.savefig(settings.STATICFILES_DIRS[0] +'/'+plog_image_name)
     return plog_image_name
 
 def PLAGE_decomposition(ds):
