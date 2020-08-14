@@ -18,7 +18,7 @@
     <link href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}" rel="stylesheet">
 
     <!-- bootstrap-select -->
-        <link href="{% static 'css/bootstrap-select.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-select.min.css' %}" rel="stylesheet">
     <!-- bootstrap-select -->
 
     <title>GNPS Molecular Family Analysis</title>
@@ -70,10 +70,12 @@
                     {% csrf_token %}
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="form-group"><label>GNPS database url</label><input type="text" class="form-control" name="gnps_url" value=""></div>
+                            <div class="form-group"><label>GNPS database url</label><input type="text"
+                                    class="form-control" name="gnps_url" value=""></div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group"><label>Metadata</label><input type="file" class="form-control-file" name="metadata" value="">
+                            <div class="form-group"><label>Metadata</label><input type="file" class="form-control-file"
+                                    name="metadata" value="">
                             </div>
                         </div>
                     </div>
@@ -91,11 +93,14 @@
                             <h2>2. Please set experimental design</h2>
                         </div>
                     </div>
-                    
+
                     <div class="row">
                         <input type="hidden" name="gnps_metadata_df_filename">
+                        <input type="hidden" name="gnps_annotation_df_filename">
+                        <input type="hidden" name="gnps_measurement_df_filename">
+                        <input type="hidden" name="experimental_design">
                         <div class="col-md-8">
-                            <div class="form-group"><label>Experimental Design</label>
+                            <div class="form-group"><label>Comparisons</label>
                                 <ul class="nav nav-tabs" id="experimental_design_tabs" role="tablist">
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link active" id="comparison_tab" data-toggle="tab"
@@ -105,15 +110,15 @@
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link" id="experimental_design_tab" data-toggle="tab"
                                             href="#experimental_design" role="tab" aria-controls="experimental_design"
-                                            aria-selected="false">2. View Current Experimental Design</a>
+                                            aria-selected="false">2. View Current Comparisons</a>
                                     </li>
                                 </ul>
                                 <div class="tab-content" id="experimental_design_tabs_content">
                                     <div class="tab-pane fade show active" id="comparison" role="tabpanel"
                                         aria-labelledby="comparison_tab">
 
-                                        <button type="button"
-                                            class="btn btn-large btn-block btn-success mt-3 mb-3" onclick="add_comparison()">Add</button>
+                                        <button type="button" class="btn btn-large btn-block btn-success mt-3 mb-3"
+                                            onclick="add_comparison()">Add</button>
 
                                         <div id="comparison_toolbar" style="margin: 0;"></div>
                                         <table class="table table-hover" id="comparison-table" data-unique-id="header-0"
@@ -130,8 +135,10 @@
                                             <tbody id="comparison-tbody"></tbody>
                                         </table>
                                     </div>
-                                    <div class="tab-pane fade" id="experimental_design" role="tabpanel" aria-labelledby="experimental_design_tab">
-                                        <textarea class="form-control mt-3 mb-3" rows="3" name="experimental_design"></textarea>
+                                    <div class="tab-pane fade" id="experimental_design" role="tabpanel"
+                                        aria-labelledby="experimental_design_tab">
+                                        <textarea class="form-control mt-3 mb-3" rows="3"
+                                            name="comparisons"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -160,13 +167,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div id="toolbar" style="margin: 0;"></div>
-                            <table class="table table-hover" id="result-table"
-                                data-toolbar="#toolbar"
-                                data-pagination="true"
-                                data-search="true"
-                                data-show-export="true"
-                                data-page-list="[10, 25, 50, 100, all]"
-                            ></table>
+                            <table class="table table-hover" id="result-table" data-toolbar="#toolbar" data-unique-id="header-0" 
+                                data-pagination="true" data-search="true" data-show-export="true"
+                                data-page-list="[10, 25, 50, 100, all]"></table>
                             <!-- <div class="table-responsive pd-2 rounded">
                             </div> -->
                         </div>
@@ -179,67 +182,94 @@
 
     </div>
 
-        <!-- modal comparison form -->
-        <div class="modal fade" tabindex="-1" role="dialog" id="modal-comparison">
-            <div class="modal-dialog modal-dialog-scrollable modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Comparison</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body" id="modal-comparison-content">
-                        <input type="hidden" name="save_comparison_type">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group mt-2"><label>Name</label><input type="text" class="form-control"
-                                        name="comparison_name" value="1321">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group mt-2"><label>Case</label>
-                                    <select name="comparison_case" class="form-control" required="required"></select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group mt-2"><label>Control</label>
-                                    <select name="comparison_control" class="form-control" required="required"></select>
-                                </div>
+    <!-- modal comparison form -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="modal-comparison">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Comparison</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-comparison-content">
+                    <input type="hidden" name="save_comparison_type">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mt-2"><label>Name</label><input type="text" class="form-control"
+                                    name="comparison_name" value="1321">
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-    
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="save_comparison()">Save</button>
-    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mt-2"><label>Case</label>
+                                <select name="comparison_case" class="form-control" required="required"></select>
+                            </div>
+                        </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mt-2"><label>Control</label>
+                                <select name="comparison_control" class="form-control" required="required"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="save_comparison()">Save</button>
+
                 </div>
             </div>
         </div>
-        <!-- modal comparison form -->
-
-    <div id="example_message" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="3000" style="width: 200px;" >
-    <div class="toast-header">
-        <strong class="mr-auto" id="message_type"></strong>
-        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-        </button>
     </div>
-    <div class="toast-body" id="message"></div>
+    <!-- modal comparison form -->
+
+    <!-- modal detail -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="modal-detail">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detail</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-detail-content">
+                    <h4>map00130: Ubiquinone and other terpenoid-quinone biosynthesis [<a
+                            href="https://www.genome.jp/dbget-bin/www_bget?map00130" target="_blank"
+                            rel="noopener noreferrer">Info</a>]</h4>
+                    <p>p-value: 0.001586</p>
+                    <p>Formula Hits: 6</p>
+                    <p>Summary:</p>
+                    <p>CLASS : Metabolism; Metabolism of cofactors and vitamins</p>
+                    <img src="https://www.genome.jp/kegg/pathway/map/map00130.png" class="img-fluid" alt="" srcset="">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal detail -->
+
+
+    <div id="example_message" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true"
+        data-autohide="true" data-delay="3000" style="width: 200px;">
+        <div class="toast-header">
+            <strong class="mr-auto" id="message_type"></strong>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body" id="message"></div>
     </div>
 
     <div aria-live="polite" aria-atomic="true">
         <!-- Position it -->
-        <div id="message_list"  style="position: fixed; top: 20px; right: 20px;">
-          <!-- Then put toasts within -->
+        <div id="message_list" style="position: fixed; top: 20px; right: 20px;">
+            <!-- Then put toasts within -->
         </div>
-      </div>
+    </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -277,7 +307,7 @@
             $("#modal-comparison").modal("show");
         }
         // add new comparison
-        
+
         // save comparison and update text
         function save_comparison() {
             // get input group data
@@ -287,10 +317,12 @@
 
             // add new row to table
             let new_row = $("<tr></tr>");
-            new_row.append($("<td>"+comparison_name+"</td>"));
-            new_row.append($("<td>"+comparison_case+"</td>"));
-            new_row.append($("<td>"+comparison_control+"</td>"));
-            new_row.append($("<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"delete_comparison($(this))\">Delete</button></td>"));
+            new_row.append($("<td>" + comparison_name + "</td>"));
+            new_row.append($("<td>" + comparison_case + "</td>"));
+            new_row.append($("<td>" + comparison_control + "</td>"));
+            new_row.append($(
+                "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"delete_comparison($(this))\">Delete</button></td>"
+                ));
 
             $("#comparison-tbody").append(new_row);
 
@@ -308,11 +340,12 @@
             global_comparison['comparisons'].push(new_comparison);
 
             // update experimental design
-            $("[name='experimental_design']").val(JSON.stringify(global_comparison));
+            $("[name='comparisons']").val(JSON.stringify([new_comparison]));
+            // $("[name='experimental_design']").val(JSON.stringify(global_comparison));
 
             // close modal
             $("#modal-comparison").modal('hide');
-            
+
             console.log('current global comparison:', global_comparison);
         }
         // save comparison and update text
@@ -337,7 +370,7 @@
             global_comparison['comparisons'].splice(target_comparison_index, 1);
 
             // update experimental design
-            $("[name='experimental_design']").val(JSON.stringify(global_comparison));
+            // $("[name='experimental_design']").val(JSON.stringify(global_comparison));
 
             // delete this row
             button.parent().parent(':first').remove();
@@ -348,9 +381,8 @@
         // load GNPS data from localstorage
         function load_gnps_data_from_local() {
             let gnps_metadata_df = localStorage.getItem("gnps_metadata_df");
-            let gnps_measurement_df = localStorage.getItem("gnps_measurement_df");
-            let gnps_annotation_df = localStorage.getItem("gnps_annotation_df");
-            let gnps_experimental_design = localStorage.getItem("gnps_experimental_design");
+            let gnps_url = localStorage.getItem("gnps_url");
+            let comparisons = localStorage.getItem("comparisons");
 
             if (gnps_metadata_df != null) {
 
@@ -363,25 +395,25 @@
                 $("[name='comparison_case']").empty();
                 let case_select = $("[name='comparison_case']");
                 gnps_metadata_df.groups.forEach(column => {
-                    case_select.append($("<option>"+column+"</option>"));
+                    case_select.append($("<option>" + column + "</option>"));
                 });
                 $("[name='comparison_control']").empty();
                 let control_select = $("[name='comparison_control']");
                 gnps_metadata_df.groups.forEach(column => {
-                    control_select.append($("<option>"+column+"</option>"));
+                    control_select.append($("<option>" + column + "</option>"));
                 });
             }
 
-            if (gnps_annotation_df != null) {
-                gnps_annotation_df = JSON.parse(gnps_annotation_df);
-                console.log('read GNPS annotation df:', gnps_annotation_df);
-                $("[name='gnps_annotation_df_filename']").val(gnps_annotation_df.filename);
+            if (gnps_url != null) {
+                // gnps_url = JSON.parse(gnps_url);
+                console.log('read gnps url:', gnps_url);
+                $("[name='gnps_url']").val(gnps_url);
             }
 
-            if (gnps_experimental_design != null) {
-                // gnps_experimental_design = JSON.parse(gnps_experimental_design);
-                console.log('read experimental design:', gnps_experimental_design);
-                $("[name='experimental_design']").val(gnps_experimental_design);
+            if (comparisons != null) {
+                // comparisons = JSON.parse(comparisons);
+                console.log('read comparisons:', comparisons);
+                $("[name='comparisons']").val(comparisons);
             }
         }
         // load GNPS data from localstorage
@@ -426,6 +458,119 @@
         }
         // show message or error
 
+
+        // display details
+        function display_detail(index) {
+            console.log('display index:', index);
+
+            // get this row data
+            let row_header = $('#result-table').bootstrapTable('getRowByUniqueId', index);
+            console.log('row header=', row_header)
+
+            // replay row key by real names
+            let columns = $('#result-table').bootstrapTable('getVisibleColumns');
+            console.log('columns=', columns);
+            let column_dict = {};
+            columns.forEach(column => {
+                column_dict[column["field"]] = column["title"];
+            });
+            console.log('column dict=', column_dict);
+
+            let row = {}
+            for (const key in row_header) {
+                const element = row_header[key];
+                const new_key = column_dict[key];
+                row[new_key] = element;
+            }
+
+            let gnps_url = $("[name='gnps_url']")[0].value;
+            let gnps_metadata_df_filename = $("[name='gnps_metadata_df_filename']").val();
+            let comparisons = $("[name='comparisons']")[0].value;
+
+            console.log('row=', row);
+            let pathway_name = row['pw_name'];
+            console.log('pathway_name=', pathway_name);
+
+            // ask for backend data
+            // get csrf token
+            let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
+            // get csrf token
+
+            let data = {
+                csrfmiddlewaretoken: csrfmiddlewaretoken,
+                row: JSON.stringify(row),
+                gnps_url: gnps_url,
+                gnps_metadata_df_filename: gnps_metadata_df_filename,
+                comparisons: comparisons,
+            };
+
+            // debug
+            console.log('data=', data);
+            // debug
+
+            let url = "{% url 'pals_viewer:gnps_show_details' %}"
+
+            // get all inputs, then post and get result
+            // if error, just show errors
+            // if success, just show tables
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: data,
+                dataType: "json",
+                success: function (data) {
+                    console.log(data);
+                    let status = data.status;
+                    if (status == 'success') {
+                        let details = data.data.details;
+                        // $('#modal-detail-content').html(details);
+                        $('#modal-detail').modal('show');
+                    } else {
+                        let message = data.message;
+                        show_message('Error', message);
+                    }
+                },
+                error: function (jqXHR, textStatus, err) {
+                    console.log(arguments);
+                    remove_loading_animation('#analysis');
+                    show_message('Error', err);
+                },
+                complete: function (jqXHR, textStatus) {
+                    console.log(textStatus);
+                    remove_loading_animation('#analysis');
+                    // show_message('Info', 'Done!');
+                },
+                statusCode: {
+                    '403': function (jqXHR, textStatus, err) {
+                        console.log(arguments);
+                        remove_loading_animation('#analysis');
+                        show_message('Error', err);
+                    },
+                    '400': function (jqXHR, textStatus, err) {
+                        console.log(arguments);
+                        remove_loading_animation('#analysis');
+                        show_message('Error', err);
+                    }
+                }
+            });
+        }
+        // display details
+
+
+        // display single row detail
+        function operateFormatter(value, row, index) {
+            console.log('index', index, 'row=', row);
+            return [
+                '<a class="view" href="javascript:void(0)" onclick="display_detail(\'' + row["header-0"] +
+                '\')" title="View">',
+                '<i class="fa fa-eye"></i>',
+                ' ',
+                value,
+                '</a>  ',
+            ].join('')
+        }
+        // display single row detail
+
         // display table
         function display_table(headers, rows) {
 
@@ -451,9 +596,14 @@
                 const element = headers[i];
                 let column = {
                     "title": element,
-                    "field": "header-"+i,
+                    "field": "header-" + i,
                     "sortable": true
                 };
+
+                if (i == 1) {
+                    column["formatter"] = operateFormatter
+                }
+
                 columns.push(column);
             }
 
@@ -461,9 +611,8 @@
             data = [];
             rows.forEach(row => {
                 let tr = {};
-                for (let i=0;i<row.length;i++)
-                {
-                    tr["header-"+i] = row[i];
+                for (let i = 0; i < row.length; i++) {
+                    tr["header-" + i] = row[i];
                 }
                 data.push(tr);
             });
@@ -483,32 +632,38 @@
         remove_loading_animation('#analysis');;
         remove_loading_animation('#get_data');
 
+        // loading localStorage cache data
+        load_gnps_data_from_local();
+
         // 2. binding the click event to button
         //    if click the button, we need to submit data
         $('#analysis').click(function () {
             // display loading animation
-            display_loading_animation('#analysis');;
+            display_loading_animation('#analysis');
 
             // get all inputs, then post and get result
             let gnps_url = $("[name='gnps_url']")[0].value;
             let gnps_metadata_df_filename = $("[name='gnps_metadata_df_filename']").val();
-            let experimental_design = $("[name='experimental_design']")[0].value;
+            let comparisons = $("[name='comparisons']")[0].value;
 
+            localStorage.setItem("gnps_url", gnps_url);
+            localStorage.setItem("comparisons", comparisons);
+            console.log('save gnps url to local...');
 
             // get csrf token
             let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
             // get csrf token
 
-            // debug
-            window.console.log('gnps_url=', gnps_url)
-            window.console.log('gnps_url=', gnps_url)
-            // debug
             let data = {
                 csrfmiddlewaretoken: csrfmiddlewaretoken,
                 gnps_url: gnps_url,
                 gnps_metadata_df_filename: gnps_metadata_df_filename,
-                experimental_design: experimental_design,
+                comparisons: comparisons,
             };
+
+            // debug
+            window.console.log('data=', data)
+            // debug
 
             // get all inputs, then post and get result
             // if error, just show errors
@@ -524,6 +679,20 @@
                     let headers = table.headers;
                     let rows = table.rows;
                     display_table(headers, rows);
+
+                    // save data to local
+                    let annotation_df = data.data.annotation_df;
+                    localStorage.setItem("gnps_annotation_df", JSON.stringify(annotation_df));
+                    console.log('save annotation_df to local...');
+
+                    let measurement_df = data.data.measurement_df;
+                    localStorage.setItem("gnps_measurement_df", JSON.stringify(measurement_df));
+                    console.log('save measurement_df to local...');
+
+                    let experimental_design = data.data.experimental_design;
+                    localStorage.setItem("gnps_experimental_design", JSON.stringify(experimental_design));
+                    console.log('save experimental design to local...');
+
                     remove_loading_animation('#analysis');
                     show_message('Info', data.message);
                 },

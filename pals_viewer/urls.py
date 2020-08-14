@@ -15,6 +15,7 @@ urlpatterns = [
     path('gnps/get_data', views.gnps_get_data, name='gnps_get_data'),
     path('gnps/index', views.gnps_index, name='gnps_index'),
     path('gnps/analysis', views.gnps_analysis, name='gnps_analysis'),
+    path('gnps/details', views.gnps_show_details, name='gnps_show_details'),
 
     # MS2LDA analysis
     path('ms2lda/index', views.ms2lda_index, name='ms2lda_index'),

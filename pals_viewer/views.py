@@ -17,6 +17,7 @@ import pandas as pd
 import zipfile
 import seaborn as sns
 import datetime
+import matplotlib.pyplot as plt
 
 # Create your views here.
 def index(request):
@@ -442,18 +443,17 @@ def gnps_analysis(request):
     # get data from POST
     metadata_df_filename=request.POST.get('gnps_metadata_df_filename')
     gnps_url=request.POST.get('gnps_url')
-    experimental_design=json.loads(request.POST.get('experimental_design'))
-    comparisons = experimental_design['comparisons']
+    comparisons=json.loads(request.POST.get('comparisons'))
     database = DATABASE_GNPS_MOLECULAR_FAMILY
 
     print('metadata_df_filename=', metadata_df_filename)
     print('gnps_url=', gnps_url)
-    print('experimental_design=', experimental_design)
+    print('comparisons=', comparisons)
 
     # load data from csv
     metadata_df = pd.read_csv(settings.MEDIA_ROOT+'/'+metadata_df_filename)
+    # metadata_df.reset_index()
 
-    # load data from remote
     loader = GNPSLoader(database, gnps_url, metadata_df, comparisons)
     database = loader.load_data()
 
@@ -464,15 +464,15 @@ def gnps_analysis(request):
     # set data source
     gnps_ds = DataSource(measurement_df, annotation_df, experimental_design, None, database=database, min_replace=SMALL)
 
-    plage = PLAGE(gnps_ds, num_resamples=1000)
-    pathway_df = plage.get_pathway_df(standardize=True)
+    plage = PLAGE(gnps_ds)
+    df = plage.get_pathway_df()
 
-    pathway_json = json.loads(pathway_df.to_json(orient='split'))
-    headers = pathway_json['columns']
+    df_json = json.loads(df.to_json(orient='split'))
+    headers = df_json['columns']
     headers.insert(0, '')
     
     rows = []
-    for index, row in zip(pathway_json['index'], pathway_json['data']):
+    for index, row in zip(df_json['index'], df_json['data']):
         row.insert(0, index)
         rows.append(row)
 
@@ -481,9 +481,310 @@ def gnps_analysis(request):
         'rows': rows
     }
 
-    result = {'message':'Analysis done!', 'data':{'table':table}}
+    result = {
+        'message':'Analysis done!', 
+        'data':{
+            'table':table,
+        }
+    }
     
     return HttpResponse(json.dumps(result))
+
+
+def gnps_show_details(request):
+    if request.method != 'POST':
+        return None
+    
+    content_dict = {}
+    details = []
+
+    
+    # get data from POST
+    pathway_name=request.POST.get('pathway_name') # pathway name of selected row of table
+    row=json.loads(request.POST.get('row')) # the select row of table
+    print('row=', row)
+
+    # get comparisions
+    metadata_df_filename=request.POST.get('gnps_metadata_df_filename')
+    gnps_url=request.POST.get('gnps_url')
+    comparisons=json.loads(request.POST.get('comparisons'))
+    database = DATABASE_GNPS_MOLECULAR_FAMILY
+
+    print('metadata_df_filename=', metadata_df_filename)
+    print('gnps_url=', gnps_url)
+    print('comparisons=', comparisons)
+
+    # load data from csv
+    metadata_df = pd.read_csv(settings.MEDIA_ROOT+'/'+metadata_df_filename)
+
+    loader = GNPSLoader(database, gnps_url, metadata_df, comparisons)
+    database = loader.load_data()
+
+    measurement_df = database.extra_data['measurement_df']
+    annotation_df = database.extra_data['annotation_df']
+    experimental_design = database.extra_data['experimental_design']
+
+    # convert to a DataSource object that can be used by PLAGE
+    ds = DataSource(measurement_df, annotation_df, experimental_design, None, database=database, min_replace=SMALL)
+
+    # run PLAGE decomposition on the ds
+    df = PLAGE_decomposition(ds)
+
+    # we assume comparisons has only one item
+    case = comparisons[0]['case']
+    control = comparisons[0]['control']
+
+    significant_column = '%s p-value' % (comparisons[0]['name'])
+    df = process_gnps_results(df, significant_column)
+
+    all_groups, all_samples, entity_dict, intensities_df, dataset_pathways_to_row_ids = get_plot_data(ds, case, control)
+    results = {
+        'df': df,
+        'all_groups': all_groups,
+        'all_samples': all_samples,
+        'entity_dict': entity_dict,
+        'intensities_df': intensities_df,
+        'dataset_pathways_to_row_ids': dataset_pathways_to_row_ids,
+        'database_name': database.database_name,
+    }
+
+    # quick hack to pass the motif db urls out for plotting/displaying
+    if 'motifdb_urls' in database.extra_data:
+        results['motifdb_urls'] = database.extra_data['motifdb_urls']
+    
+    # print('results=', results)
+
+    # if this is molecular family analysis, the selected name will be e.g. 'Molecular Family #123 (...)'
+    # since we split by space, we take the token at position 2 and remove the first character to get the index
+    # otherwise if this is e.g. MS2LDA analysis, the selected name will be e.g. 'motif_123 (...), so
+    # we just take the first token as the index
+
+    # update row name
+    # 'pw_name': 'Components',
+    # significant_column: 'p-value',
+    # 'tot_ds_F': 'No. of members',
+    row['Components'] = row['pw_name']
+    row['p-value'] = row[significant_column]
+    row['No. of members'] = row['tot_ds_F']
+
+    pw_name = row['Components']
+    p_value = row['p-value']
+    no_members = row['No. of members']
+    selected = '%s (p-value=%.6e, members=%d)' % (pw_name, p_value, no_members)
+
+    tokens = selected.split(' ')
+    database_name = results['database_name']
+    idx = tokens[2][1:] if database_name == DATABASE_GNPS_MOLECULAR_FAMILY else tokens[0]
+    # display the selected row
+    # st.write(row)
+    print('row=',row)
+
+    # write the link to MotifDB if available
+    motifdb_link = get_motifdb_link(results, row)
+    if motifdb_link is not None:
+        # display link
+        print('Link to MotifDB: %s' % motifdb_link)
+
+    members = dataset_pathways_to_row_ids[idx]
+    member_df = get_member_df(entity_dict, members)
+    plot_heatmap_image_filename = plot_heatmap(all_groups, all_samples, intensities_df, member_df, members, row)
+    # detail_table = display_member_df(member_df)
+
+    member_df_json = json.loads(member_df.to_json(orient='split'))
+    headers = member_df_json['columns']
+    headers.insert(0, '')
+    
+    rows = []
+    for index, row in zip(member_df_json['index'], member_df_json['data']):
+        row.insert(0, index)
+        rows.append(row)
+
+    table = {
+        'headers': headers,
+        'rows': rows
+    }
+
+    result = {
+        'message':'Analysis done!', 
+        'data':{
+            'table':table,
+        }
+    }
+
+    print('plot_heatmap_image_filename=',plot_heatmap_image_filename)
+    print('table=',table)
+
+    details = []
+
+    # current row
+    details.append('<h2>Component Browser</h2>')
+    details.append('<h4>Components: {}</h4>'.format(no_members))
+    details.append('<h4>p-value:  {}</h4>'.format(p_value))
+    details.append('<h4>o. of members: {}</h4>'.format(pw_name))
+
+    # heatmap
+    image_url = settings.MEDIA_URL+plot_heatmap_image_filename
+    logger.debug('image_url = %s' % image_url)
+    details.append('<img src="{}" class="img-fluid" alt="" srcset="">'.format(image_url))
+
+    # members table
+    details.append('<h2>Members</h2>')
+
+    result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details, 'table': table}}
+    return HttpResponse(json.dumps(result))
+
+
+    # calculate information
+    label = '%s: %s' % (stId, pathway_name)
+    info_url = 'https://www.genome.jp/dbget-bin/www_bget?%s' % stId
+    header = '<h3>{} [<a href="{}" target="_blank" rel="noopener noreferrer">Info</a>]</h3>'.format(label, info_url)
+    details.append(header)
+
+    p_value = row['p-value']
+    num_hits = row['Formula Hits']
+    details.append('<h4>p-value: %.6f</h4>' % p_value)
+    details.append('<h4>Formula Hits: %d</h4>' % (num_hits))
+    details.append('<h4>Summary:</h4>')
+
+    dict_data = get_kegg_info(stId)
+    for k, v in dict_data.items():
+        # if k in ['CLASS', 'MODULE', 'DISEASE', 'REL_PATHWAY']:
+        if k in ['CLASS']:
+            details.append('<p>{}: {}</p>'.format(k, v))
+
+    image_url = 'https://www.genome.jp/kegg/pathway/map/%s.png' % stId
+    logger.debug('image_url = %s' % image_url)
+    details.append('<img src="{}" class="img-fluid" alt="" srcset="">'.format(image_url))
+
+    result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
+
+    return HttpResponse(json.dumps(result))
+
+def process_gnps_results(df, significant_column):
+    # filter results to show only the columns we want
+    try:
+        df = df.drop(columns=['sf', 'exp_F', 'Ex_Cov', 'unq_pw_F', 'F_coverage'])
+    except KeyError:
+        pass
+    df = df[df.columns.drop(list(df.filter(regex='comb_p')))]
+
+    # sort column
+    count_col = 'tot_ds_F'
+    df = df.sort_values([significant_column, count_col], ascending=[True, False])
+
+    # reorder and rename columns
+    df = df[['pw_name', significant_column, 'tot_ds_F']]
+
+    df = df.rename(columns={
+        'pw_name': 'Components',
+        significant_column: 'p-value',
+        'tot_ds_F': 'No. of members',
+    })
+    return df
+
+def get_motifdb_link(results, row):
+    component = row['Components']
+    motifdb_link = None
+    if 'motifdb_urls' in results:
+        motifdb_url = results['motifdb_urls'][component]
+        try:
+            float(motifdb_url)  # will throw ValueError if it actually contains a string, otherwise it's a nan
+        except ValueError:
+            motifdb_link = motifdb_url
+    return motifdb_link
+
+def get_member_df(entity_dict, members):
+    # get group info
+    # print('%s p-value=%.4f' % (pw_name, p_value))
+    data = []
+    from_gnps = True
+    for member in members:
+        member_info = entity_dict[member]
+        unique_id = member_info['unique_id']
+        mz = member_info['mass']
+        rt = member_info['RT']
+        try:
+            intensity = member_info['SumPeakIntensity']
+            library_id = member_info['LibraryID']
+            gnps_linkout_network = member_info['GNPSLinkout_Network']
+            no_spectra = member_info['number of spectra']
+            temp = [unique_id, library_id, mz, rt, intensity, no_spectra, gnps_linkout_network]
+        except KeyError:
+            from_gnps = False
+            temp = [unique_id, mz, rt]
+        data.append(temp)
+
+    if from_gnps:
+        member_df = pd.DataFrame(data, columns=['id', 'LibraryID', 'Precursor m/z', 'RTConsensus', 'PrecursorInt',
+                                                'no_spectra', 'link']).set_index('id')
+        member_df = member_df.rename(columns={
+            'Precursor m/z': 'mass',
+            'RTConsensus': 'RT'
+        })
+    else:
+        member_df = pd.DataFrame(data, columns=['id', 'mass', 'RT']).set_index('id')
+    return member_df
+
+def plot_heatmap(all_groups, all_samples, intensities_df, member_df, members, row):
+    # Create a categorical palette to identify the networks
+    used_groups = list(set(all_groups))
+    group_pal = sns.husl_palette(len(used_groups), s=.90)
+    group_lut = dict(zip(map(str, used_groups), group_pal))
+
+    # Convert the palette to vectors that will be drawn on the side of the matrix
+    group_intensities = intensities_df.loc[members][all_samples]
+    group_colours = pd.Series(all_groups, index=group_intensities.columns).map(group_lut)
+    group_colours.name = 'groups'
+
+    # plot heatmap
+    g = sns.clustermap(group_intensities, center=0, cmap='vlag', col_colors=group_colours,
+                       col_cluster=False, linewidths=0.75, cbar_pos=(0.1, 0.05, 0.05, 0.18))
+    pw_name = row['Components']
+    plt.suptitle('%s' % (pw_name), fontsize=18, y=0.89)
+
+    # draw group legend
+    for group in used_groups:
+        g.ax_col_dendrogram.bar(0, 0, color=group_lut[group], label=group, linewidth=0)
+    g.ax_col_dendrogram.legend(loc="right")
+
+    # make the annotated peaks to have labels in bold
+    try:
+        annotated_df = member_df[member_df['LibraryID'].notnull()]
+        annotated_peaks = annotated_df.index.values
+        for label in g.ax_heatmap.get_yticklabels():
+            if label.get_text() in annotated_peaks:
+                label.set_weight("bold")
+                label.set_color("green")
+    except KeyError:
+        pass
+
+    plt.setp(g.ax_heatmap.get_yticklabels(), rotation=0)
+
+    # render plot
+    # generate image
+    now_time = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+    plog_image_name = 'plot_heatmap_{}.png'.format(now_time)
+    plt.savefig(settings.MEDIA_ROOT+'/'+plog_image_name)
+    return plog_image_name
+
+def PLAGE_decomposition(ds):
+    method = PLAGE(ds)
+    df = method.get_pathway_df()
+    return df
+
+def get_plot_data(gnps_ds, case, control):
+    experimental_design = gnps_ds.get_experimental_design()
+    all_samples = []
+    all_groups = []
+    for group in experimental_design['groups']:
+        if group == case or group == control:
+            samples = experimental_design['groups'][group]
+            all_samples.extend(samples)
+            all_groups.extend([group] * len(samples))
+    entity_dict = gnps_ds.entity_dict
+    intensities_df = gnps_ds.standardize_intensity_df()
+    dataset_pathways_to_row_ids = gnps_ds.dataset_pathways_to_row_ids
+    return all_groups, all_samples, entity_dict, intensities_df, dataset_pathways_to_row_ids
 
 def ms2lda_analysis(request):
     pass
