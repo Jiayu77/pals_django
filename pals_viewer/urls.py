@@ -12,6 +12,7 @@ urlpatterns = [
     path('pathway/show_reactome_diagram', views.show_reactome_diagram, name='show_reactome_diagram'),
 
     # GNPS analysis
+    path('gnps/get_data', views.gnps_get_data, name='gnps_get_data'),
     path('gnps/index', views.gnps_index, name='gnps_index'),
     path('gnps/analysis', views.gnps_analysis, name='gnps_analysis'),
 

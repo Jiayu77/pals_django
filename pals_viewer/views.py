@@ -401,39 +401,59 @@ def get_reactome_info(stId):
         json_response = None
     return status_code, json_response
 
+
+def gnps_get_data(request):
+    """
+    If data type is token or account, connect to remote host and download data to local.
+    If data type is file, just save them to local.
+
+    Return the local file name, column names.
+    """
+    if request.method != 'POST':
+        return None
+    
+    # get data from POST
+    metadata_df=request.FILES.get('metadata_csv')
+
+    # save data to local
+    metadata_df_filename = save_upload_file_to_csv(metadata_df, 'metadata_df.csv')
+
+    # read data and transfer them to dataframe
+    metadata_df = pd.read_csv(settings.MEDIA_ROOT+'/'+metadata_df_filename)
+    print('metadata columns:', metadata_df.columns.to_list())
+
+    # get column names
+    metadata_df_columns = metadata_df.columns.to_list()
+
+    # get group values
+    group_values = metadata_df['group'].drop_duplicates().values.tolist()
+
+
+    result = {'status':'success', 'message':'Load data done!', 'data':{
+        'metadata_df': {'filename': metadata_df_filename, 'columns': metadata_df_columns, 'groups': group_values}
+    }}
+    return HttpResponse(json.dumps(result))
+
+
 def gnps_analysis(request):
     if request.method != 'POST':
         return None
 
     # get data from POST
+    metadata_df_filename=request.POST.get('gnps_metadata_df_filename')
     gnps_url=request.POST.get('gnps_url')
-    metadata=request.FILES.get('metadata')
-    # comparisons=request.POST.get('comparisons')
-    pathway_analysis_method=request.POST.get('pathway_analysis_method')
-    database=request.POST.get('database')
-    reactome_species=request.POST.get('reactome_species')
-    reactome_metabolic_pathway_only=request.POST.get('reactome_metabolic_pathway_only')
-    reactome_query=request.POST.get('reactome_query')
+    experimental_design=json.loads(request.POST.get('experimental_design'))
+    comparisons = experimental_design['comparisons']
+    database = DATABASE_GNPS_MOLECULAR_FAMILY
 
+    print('metadata_df_filename=', metadata_df_filename)
     print('gnps_url=', gnps_url)
-    print('metadata=', metadata, ',type=', type(metadata))
-    # print('comparisons=', comparisons)
-    print('pathway_analysis_method=', pathway_analysis_method)
-    print('database=', database)
-    print('reactome_species=', reactome_species)
-    print('reactome_metabolic_pathway_only=', reactome_metabolic_pathway_only)
-    print('reactome_query=', reactome_query)
+    print('experimental_design=', experimental_design)
 
-    case = 'More than 30'
-    control = 'Less than 10'
-    comp_name = 'more_plants/no_plants'
-    comparisons = [{'case': case, 'control': control, 'name': comp_name },]
+    # load data from csv
+    metadata_df = pd.read_csv(settings.MEDIA_ROOT+'/'+metadata_df_filename)
 
-    # save and read metadata csv file
-    # reset new file name
-    metadata_file = save_upload_file_to_csv(metadata, metadata.name)
-    metadata_df = pd.read_csv(metadata_file)
-
+    # load data from remote
     loader = GNPSLoader(database, gnps_url, metadata_df, comparisons)
     database = loader.load_data()
 
@@ -446,11 +466,6 @@ def gnps_analysis(request):
 
     plage = PLAGE(gnps_ds, num_resamples=1000)
     pathway_df = plage.get_pathway_df(standardize=True)
-
-    # analysis by different methods
-    p_value_col = '%s p-value' % comp_name
-    count_col = 'unq_pw_F'
-    pathway_df.sort_values([p_value_col, count_col], ascending=[True, False], inplace=True)
 
     pathway_json = json.loads(pathway_df.to_json(orient='split'))
     headers = pathway_json['columns']
