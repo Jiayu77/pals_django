@@ -19,5 +19,7 @@ urlpatterns = [
 
     # MS2LDA analysis
     path('ms2lda/index', views.ms2lda_index, name='ms2lda_index'),
+    path('ms2lda/get_data', views.ms2lda_get_data, name='ms2lda_get_data'),
     path('ms2lda/analysis', views.ms2lda_analysis, name='ms2lda_analysis'),
+    path('ms2lda/details', views.ms2lda_show_details, name='ms2lda_show_details'),
 ]

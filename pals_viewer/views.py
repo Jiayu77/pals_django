@@ -129,7 +129,7 @@ def ms2lda_index(request):
     content_dict['KEGG'] = DATABASE_PIMP_KEGG
     content_dict['reactome_species'] = reactome_species
 
-    return render(request,'pals_viewer/ms2lda_index.html', content_dict)
+    return render(request,'pals_viewer/ms_two_lda_index.html', content_dict)
 
 def keypath_get_data(request):
     """
@@ -642,6 +642,58 @@ def gnps_show_details(request):
 
     return HttpResponse(json.dumps(result))
 
+def ms2lda_get_data(request):
+    if request.method != 'POST':
+        return None
+    
+    # get data from POST
+    metadata_df=request.FILES.get('metadata_csv')
+
+    # save data to local
+    metadata_df_filename = save_upload_file_to_csv(metadata_df, 'metadata_df.csv')
+
+    # read data and transfer them to dataframe
+    metadata_df = pd.read_csv(settings.MEDIA_ROOT+'/'+metadata_df_filename)
+    print('metadata columns:', metadata_df.columns.to_list())
+
+    # get column names
+    metadata_df_columns = metadata_df.columns.to_list()
+
+    # get group values
+    group_values = metadata_df['group'].drop_duplicates().values.tolist()
+
+    result = {'status':'success', 'message':'Load data done!', 'data':{
+        'metadata_df': {'filename': metadata_df_filename, 'columns': metadata_df_columns, 'groups': group_values}
+    }}
+    return HttpResponse(json.dumps(result))
+
+def ms2lda_analysis(request):
+    pass
+
+def ms2lda_show_details(request):
+    pass
+
+
+def PLAGE_decomposition(ds):
+    method = PLAGE(ds)
+    df = method.get_pathway_df()
+    return df
+
+def get_plot_data(gnps_ds, case, control):
+    experimental_design = gnps_ds.get_experimental_design()
+    all_samples = []
+    all_groups = []
+    for group in experimental_design['groups']:
+        if group == case or group == control:
+            samples = experimental_design['groups'][group]
+            all_samples.extend(samples)
+            all_groups.extend([group] * len(samples))
+    entity_dict = gnps_ds.entity_dict
+    intensities_df = gnps_ds.standardize_intensity_df()
+    dataset_pathways_to_row_ids = gnps_ds.dataset_pathways_to_row_ids
+    return all_groups, all_samples, entity_dict, intensities_df, dataset_pathways_to_row_ids
+
+
 def make_clickable(link):
     # target _blank to open new window
     # extract clickable text to display for your link
@@ -755,24 +807,3 @@ def plot_heatmap(all_groups, all_samples, intensities_df, member_df, members, ro
     plt.savefig(settings.STATICFILES_DIRS[0] +'/'+plog_image_name)
     return plog_image_name
 
-def PLAGE_decomposition(ds):
-    method = PLAGE(ds)
-    df = method.get_pathway_df()
-    return df
-
-def get_plot_data(gnps_ds, case, control):
-    experimental_design = gnps_ds.get_experimental_design()
-    all_samples = []
-    all_groups = []
-    for group in experimental_design['groups']:
-        if group == case or group == control:
-            samples = experimental_design['groups'][group]
-            all_samples.extend(samples)
-            all_groups.extend([group] * len(samples))
-    entity_dict = gnps_ds.entity_dict
-    intensities_df = gnps_ds.standardize_intensity_df()
-    dataset_pathways_to_row_ids = gnps_ds.dataset_pathways_to_row_ids
-    return all_groups, all_samples, entity_dict, intensities_df, dataset_pathways_to_row_ids
-
-def ms2lda_analysis(request):
-    pass
