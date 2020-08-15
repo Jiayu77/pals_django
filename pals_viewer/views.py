@@ -615,33 +615,6 @@ def gnps_show_details(request):
     result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
     return HttpResponse(json.dumps(result))
 
-
-    # calculate information
-    label = '%s: %s' % (stId, pathway_name)
-    info_url = 'https://www.genome.jp/dbget-bin/www_bget?%s' % stId
-    header = '<h3>{} [<a href="{}" target="_blank" rel="noopener noreferrer">Info</a>]</h3>'.format(label, info_url)
-    details.append(header)
-
-    p_value = row['p-value']
-    num_hits = row['Formula Hits']
-    details.append('<h4>p-value: %.6f</h4>' % p_value)
-    details.append('<h4>Formula Hits: %d</h4>' % (num_hits))
-    details.append('<h4>Summary:</h4>')
-
-    dict_data = get_kegg_info(stId)
-    for k, v in dict_data.items():
-        # if k in ['CLASS', 'MODULE', 'DISEASE', 'REL_PATHWAY']:
-        if k in ['CLASS']:
-            details.append('<p>{}: {}</p>'.format(k, v))
-
-    image_url = 'https://www.genome.jp/kegg/pathway/map/%s.png' % stId
-    logger.debug('image_url = %s' % image_url)
-    details.append('<img src="{}" class="img-fluid" alt="" srcset="">'.format(image_url))
-
-    result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
-
-    return HttpResponse(json.dumps(result))
-
 def ms2lda_get_data(request):
     if request.method != 'POST':
         return None
@@ -663,15 +636,209 @@ def ms2lda_get_data(request):
     group_values = metadata_df['group'].drop_duplicates().values.tolist()
 
     result = {'status':'success', 'message':'Load data done!', 'data':{
-        'metadata_df': {'filename': metadata_df_filename, 'columns': metadata_df_columns, 'groups': group_values}
+        'metadata_df': {
+            'filename': metadata_df_filename,
+            'columns': metadata_df_columns,
+            'groups': group_values
+        }
     }}
     return HttpResponse(json.dumps(result))
 
 def ms2lda_analysis(request):
-    pass
+    # get data from POST
+    metadata_df_filename=request.POST.get('ms2lda_metadata_df_filename')
+    ms2lda_url=request.POST.get('motif_data_url')
+    gnps_url=request.POST.get('peak_data_url')
+    comparisons=json.loads(request.POST.get('comparisons'))
+    data_type=request.POST.get('data_type')
+    database_name = DATABASE_GNPS_MS2LDA
+
+    print('metadata_df_filename=', metadata_df_filename)
+    print('gnps_url=', gnps_url)
+    print('comparisons=', comparisons)
+
+    # load data from csv
+    metadata_df = pd.read_csv(settings.MEDIA_ROOT+'/'+metadata_df_filename)
+
+    if data_type == 'upload_file':
+        peak_table_df=request.FILES.get('peak_data_csv')
+        peak_table_df_filename = save_upload_file_to_csv(peak_table_df, 'peak_table_df.csv')
+        peak_table_df = pd.read_csv(settings.MEDIA_ROOT+'/'+peak_table_df_filename)
+
+        loader = GNPSLoader(database_name, gnps_url, metadata_df, 
+            comparisons, gnps_ms2lda_url=ms2lda_url, peak_table_df=peak_table_df)
+    else:
+        loader = GNPSLoader(database_name, gnps_url, metadata_df, 
+            comparisons, gnps_ms2lda_url=ms2lda_url)
+
+    database = loader.load_data()
+    measurement_df = database.extra_data['measurement_df']
+    annotation_df = database.extra_data['annotation_df']
+    experimental_design = database.extra_data['experimental_design']
+
+    # set data source
+    gnps_ds = DataSource(measurement_df, annotation_df, experimental_design, None, database=database, min_replace=SMALL)
+
+    plage = PLAGE(gnps_ds)
+    df = plage.get_pathway_df()
+
+    df_json = json.loads(df.to_json(orient='split'))
+    headers = df_json['columns']
+    headers.insert(0, '')
+    
+    rows = []
+    for index, row in zip(df_json['index'], df_json['data']):
+        row.insert(0, index)
+        rows.append(row)
+
+    table = {
+        'headers': headers,
+        'rows': rows
+    }
+
+    result = {
+        'message':'Analysis done!', 
+        'data':{
+            'table':table,
+        }
+    }
+    
+    return HttpResponse(json.dumps(result))
 
 def ms2lda_show_details(request):
-    pass
+    if request.method != 'POST':
+        return None
+    
+    content_dict = {}
+    details = []
+
+    # get data from POST
+    pathway_name=request.POST.get('pathway_name') # pathway name of selected row of table
+    row=json.loads(request.POST.get('row')) # the select row of table
+    print('row=', row)
+
+    # get comparisions
+    metadata_df_filename=request.POST.get('ms2lda_metadata_df_filename')
+    ms2lda_url=request.POST.get('motif_data_url')
+    gnps_url=request.POST.get('peak_data_url')
+    comparisons=json.loads(request.POST.get('comparisons'))
+    data_type=request.POST.get('data_type')
+    database_name = DATABASE_GNPS_MS2LDA
+
+    print('metadata_df_filename=', metadata_df_filename)
+    print('gnps_url=', gnps_url)
+    print('comparisons=', comparisons)
+
+    # load data from csv
+    metadata_df = pd.read_csv(settings.MEDIA_ROOT+'/'+metadata_df_filename)
+
+    if data_type == 'upload_file':
+        peak_table_df=request.FILES.get('peak_data_csv')
+        peak_table_df_filename = save_upload_file_to_csv(peak_table_df, 'peak_table_df.csv')
+        peak_table_df = pd.read_csv(settings.MEDIA_ROOT+'/'+peak_table_df_filename)
+
+        loader = GNPSLoader(database_name, gnps_url, metadata_df, 
+            comparisons, gnps_ms2lda_url=ms2lda_url, peak_table_df=peak_table_df)
+    else:
+        loader = GNPSLoader(database_name, gnps_url, metadata_df, 
+            comparisons, gnps_ms2lda_url=ms2lda_url)
+
+    database = loader.load_data()
+
+    measurement_df = database.extra_data['measurement_df']
+    annotation_df = database.extra_data['annotation_df']
+    experimental_design = database.extra_data['experimental_design']
+
+    # convert to a DataSource object that can be used by PLAGE
+    ds = DataSource(measurement_df, annotation_df, experimental_design, None, database=database, min_replace=SMALL)
+
+    # run PLAGE decomposition on the ds
+    df = PLAGE_decomposition(ds)
+
+    # we assume comparisons has only one item
+    case = comparisons[0]['case']
+    control = comparisons[0]['control']
+
+    significant_column = '%s p-value' % (comparisons[0]['name'])
+    df = process_gnps_results(df, significant_column)
+
+    all_groups, all_samples, entity_dict, intensities_df, dataset_pathways_to_row_ids = get_plot_data(ds, case, control)
+    results = {
+        'df': df,
+        'all_groups': all_groups,
+        'all_samples': all_samples,
+        'entity_dict': entity_dict,
+        'intensities_df': intensities_df,
+        'dataset_pathways_to_row_ids': dataset_pathways_to_row_ids,
+        'database_name': database.database_name,
+    }
+
+    # quick hack to pass the motif db urls out for plotting/displaying
+    if 'motifdb_urls' in database.extra_data:
+        results['motifdb_urls'] = database.extra_data['motifdb_urls']
+    
+    # print('results=', results)
+
+    # if this is molecular family analysis, the selected name will be e.g. 'Molecular Family #123 (...)'
+    # since we split by space, we take the token at position 2 and remove the first character to get the index
+    # otherwise if this is e.g. MS2LDA analysis, the selected name will be e.g. 'motif_123 (...), so
+    # we just take the first token as the index
+
+    # update row name
+    # 'pw_name': 'Components',
+    # significant_column: 'p-value',
+    # 'tot_ds_F': 'No. of members',
+    row['Components'] = row['pw_name']
+    row['p-value'] = row[significant_column]
+    row['No. of members'] = row['tot_ds_F']
+
+    pw_name = row['Components']
+    p_value = row['p-value']
+    no_members = row['No. of members']
+    selected = '%s (p-value=%.6e, members=%d)' % (pw_name, p_value, no_members)
+
+    tokens = selected.split(' ')
+    database_name = results['database_name']
+    idx = tokens[2][1:] if database_name == DATABASE_GNPS_MOLECULAR_FAMILY else tokens[0]
+    # display the selected row
+    # st.write(row)
+    print('row=',row)
+
+    # write the link to MotifDB if available
+    motifdb_link = get_motifdb_link(results, row)
+    if motifdb_link is not None:
+        # display link
+        print('Link to MotifDB: %s' % motifdb_link)
+
+    members = dataset_pathways_to_row_ids[idx]
+    member_df = get_member_df(entity_dict, members)
+    plot_heatmap_image_filename = plot_heatmap(all_groups, all_samples, intensities_df, member_df, members, row)
+    # detail_table = display_member_df(member_df)
+
+    if 'link' in member_df.columns:
+        member_df['link'] = member_df['link'].apply(make_clickable)
+
+    print('plot_heatmap_image_filename=',plot_heatmap_image_filename)
+
+    details = []
+
+    # current row
+    details.append('<h2>Component Browser</h2>')
+    details.append('<h4>Components: {}</h4>'.format(no_members))
+    details.append('<h4>p-value:  {}</h4>'.format(p_value))
+    details.append('<h4>o. of members: {}</h4>'.format(pw_name))
+
+    # heatmap
+    image_url = settings.STATIC_URL+plot_heatmap_image_filename
+    logger.debug('image_url = %s' % image_url)
+    details.append('<img src="{}" class="img-fluid" alt="" srcset="">'.format(image_url))
+
+    # members table
+    details.append('<h2>Members</h2>')
+    details.append(member_df.to_html(escape=False))
+
+    result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
+    return HttpResponse(json.dumps(result))
 
 
 def PLAGE_decomposition(ds):

@@ -525,26 +525,45 @@
                 row[new_key] = element;
             }
 
-            let peak_url = $("[name='peak_url']")[0].value;
-            let ms2lda_metadata_df_filename = $("[name='ms2lda_metadata_df_filename']").val();
+            // get all inputs, then post and get result
             let comparisons = $("[name='comparisons']")[0].value;
+            let motif_data_url = $("[name='motif_data_url']")[0].value;
+            let ms2lda_metadata_df_filename = $("[name='ms2lda_metadata_df_filename']")[0].value;
+
+            let peak_data_url = $("[name='peak_data_url']")[0].value;
+            let peak_data_csv = $("[name='peak_data_file']")[0].files[0];
+
+            let data_type = 'url'
+            if ($("#peak_data_by_upload_file").hasClass("active")) {
+                data_type = 'upload_file';
+            } else {
+                localStorage.setItem("peak_data_url", peak_data_url);
+            }
+            // save cache
+            localStorage.setItem("motif_data_url", motif_data_url);
+
+            // get csrf token
+            let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
+            // get csrf token
+
+            let data = {};
+            let processData = false; // required for file uploading
+            let contentType = false; // required for file uploading
 
             console.log('row=', row);
             let pathway_name = row['pw_name'];
             console.log('pathway_name=', pathway_name);
 
             // ask for backend data
-            // get csrf token
-            let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
-            // get csrf token
-
-            let data = {
-                csrfmiddlewaretoken: csrfmiddlewaretoken,
-                row: JSON.stringify(row),
-                peak_url: peak_url,
-                ms2lda_metadata_df_filename: ms2lda_metadata_df_filename,
-                comparisons: comparisons,
-            };
+            data = new FormData();
+            data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
+            data.append('motif_data_url', motif_data_url);
+            data.append('ms2lda_metadata_df_filename', ms2lda_metadata_df_filename);
+            data.append('peak_data_url', peak_data_url);
+            data.append('peak_data_csv', peak_data_csv);
+            data.append('data_type', data_type);
+            data.append('comparisons', comparisons);
+            data.append('row', JSON.stringify(row));
 
             // debug
             console.log('data=', data);
@@ -560,6 +579,8 @@
                 type: "POST",
                 data: data,
                 dataType: "json",
+                processData: processData, // required for file uploading
+                contentType: contentType, // required for file uploading
                 success: function (data) {
                     console.log(data);
                     let status = data.status;
@@ -684,57 +705,55 @@
             display_loading_animation('#analysis');
 
             // get all inputs, then post and get result
-            let peak_url = $("[name='peak_url']")[0].value;
-            let ms2lda_metadata_df_filename = $("[name='ms2lda_metadata_df_filename']").val();
             let comparisons = $("[name='comparisons']")[0].value;
+            let motif_data_url = $("[name='motif_data_url']")[0].value;
+            let ms2lda_metadata_df_filename = $("[name='ms2lda_metadata_df_filename']")[0].value;
 
-            localStorage.setItem("peak_url", peak_url);
-            localStorage.setItem("comparisons", comparisons);
-            console.log('save gnps url to local...');
+            let peak_data_url = $("[name='peak_data_url']")[0].value;
+            let peak_data_csv = $("[name='peak_data_file']")[0].files[0];
+
+            let data_type = 'url'
+            if ($("#peak_data_by_upload_file").hasClass("active")) {
+                data_type = 'upload_file';
+            } else {
+                localStorage.setItem("peak_data_url", peak_data_url);
+            }
+            // save cache
+            localStorage.setItem("motif_data_url", motif_data_url);
 
             // get csrf token
             let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
             // get csrf token
 
-            let data = {
-                csrfmiddlewaretoken: csrfmiddlewaretoken,
-                peak_url: peak_url,
-                ms2lda_metadata_df_filename: ms2lda_metadata_df_filename,
-                comparisons: comparisons,
-            };
+            let data = {};
+            let processData = false; // required for file uploading
+            let contentType = false; // required for file uploading
 
-            // debug
-            window.console.log('data=', data)
-            // debug
+            data = new FormData();
+            data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
+            data.append('motif_data_url', motif_data_url);
+            data.append('ms2lda_metadata_df_filename', ms2lda_metadata_df_filename);
+            data.append('peak_data_url', peak_data_url);
+            data.append('peak_data_csv', peak_data_csv);
+            data.append('data_type', data_type);
+            data.append('comparisons', comparisons);
 
             // get all inputs, then post and get result
             // if error, just show errors
             // if success, just show tables
             $.ajax({
-                url: "analysis",
+                url: "{% url 'pals_viewer:ms2lda_analysis' %}",
                 type: "POST",
                 data: data,
                 dataType: "json",
+                processData: processData, // required for file uploading
+                contentType: contentType, // required for file uploading
                 success: function (data) {
                     console.log(data);
                     let table = data.data.table;
                     let headers = table.headers;
                     let rows = table.rows;
                     display_table(headers, rows);
-
-                    // save data to local
-                    let annotation_df = data.data.annotation_df;
-                    localStorage.setItem("ms2lda_annotation_df", JSON.stringify(annotation_df));
-                    console.log('save annotation_df to local...');
-
-                    let measurement_df = data.data.measurement_df;
-                    localStorage.setItem("ms2lda_measurement_df", JSON.stringify(measurement_df));
-                    console.log('save measurement_df to local...');
-
-                    let experimental_design = data.data.experimental_design;
-                    localStorage.setItem("ms2lda_experimental_design", JSON.stringify(
-                        experimental_design));
-                    console.log('save experimental design to local...');
 
                     remove_loading_animation('#analysis');
                     show_message('Info', data.message);
