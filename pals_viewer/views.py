@@ -18,6 +18,7 @@ import zipfile
 import seaborn as sns
 import datetime
 import matplotlib.pyplot as plt
+matplotlib.use('Agg')
 
 # Create your views here.
 def index(request):
@@ -258,19 +259,15 @@ def analysis(request):
     ds = DataSource(int_df, annotation_df, experimental_design, database, reactome_species=reactome_species, reactome_metabolic_pathway_only=reactome_metabolic_pathway_only, reactome_query=reactome_query)
 
     # analysis by different methods
-    sorted_by = database+' beer1/beer2 comb_p'
     if pathway_analysis_method == 'PLAGE':
         plage = PLAGE(ds)
         pathway_df = plage.get_pathway_df()
-        pathway_df.sort_values(sorted_by, ascending=True, inplace=True)
     elif pathway_analysis_method == 'ORA':
         ora = ORA(ds)
         pathway_df = ora.get_pathway_df()
-        pathway_df.sort_values(sorted_by, ascending=True, inplace=True)
     elif pathway_analysis_method == 'GSEA':
         gsea = GSEA(ds)
         pathway_df = gsea.get_pathway_df()
-        pathway_df.sort_values(sorted_by, ascending=True, inplace=True)
 
     pathway_json = json.loads(pathway_df.to_json(orient='split'))
     headers = pathway_json['columns']
