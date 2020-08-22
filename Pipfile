@@ -1,0 +1,24 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+numpy = "*"
+pandas = "*"
+requests = "*"
+loguru = "*"
+sklearn = "*"
+tqdm = "*"
+neo4j = "*"
+statsmodels = "*"
+gseapy = "*"
+seaborn = "*"
+matplotlib = "*"
+Django = "*"
+pals-pathway = "*"
+
+[requires]
+python_version = "3.8"
