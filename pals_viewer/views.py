@@ -18,6 +18,7 @@ import zipfile
 import seaborn as sns
 import datetime
 import matplotlib.pyplot as plt
+import matplotlib
 matplotlib.use('Agg')
 
 # Create your views here.
