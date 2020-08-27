@@ -86,6 +86,7 @@
         <input type="hidden" name="ms2lda_annotation_df_filename">
         <input type="hidden" name="ms2lda_measurement_df_filename">
         <input type="hidden" name="experimental_design">
+        <input type="hidden" name="ms2lda_load_data_filename">
         <div class="col-md-8">
             <div class="form-group"><label>Comparisons</label>
                 <ul class="nav nav-tabs" id="experimental_design_tabs" role="tablist">
@@ -335,6 +336,7 @@
         let motif_data_url = localStorage.getItem("motif_data_url");
         let peak_data_url = localStorage.getItem("peak_data_url");
         let comparisons = localStorage.getItem("comparisons");
+        let ms2lda_load_data_filename = localStorage.getItem("ms2lda_load_data_filename");
 
         if (ms2lda_metadata_df != null) {
 
@@ -371,6 +373,11 @@
             console.log('read comparisons:', comparisons);
             $("[name='comparisons']").val(comparisons);
         }
+
+        if (ms2lda_load_data_filename != null) {
+            console.log('read ms2lda load data:', ms2lda_load_data_filename);
+            $("[name='ms2lda_load_data_filename']").val(ms2lda_load_data_filename);
+        }
     }
     // load GNPS data from localstorage
 
@@ -406,6 +413,7 @@
 
         let peak_data_url = $("[name='peak_data_url']")[0].value;
         let peak_data_csv = $("[name='peak_data_file']")[0].files[0];
+        let ms2lda_load_data_filename = $("[name='ms2lda_load_data_filename']").val();
 
         let data_type = 'url'
         if ($("#peak_data_by_upload_file").hasClass("active")) {
@@ -438,6 +446,7 @@
         data.append('data_type', data_type);
         data.append('comparisons', comparisons);
         data.append('row', JSON.stringify(row));
+        data.append('ms2lda_load_data_filename', ms2lda_load_data_filename);
 
         // debug
         console.log('data=', data);
@@ -556,6 +565,13 @@
                 let headers = table.headers;
                 let rows = table.rows;
                 let display_columns = table.display_columns;
+                let ms2lda_load_data_filename = data.data.ms2lda_load_data_filename;
+
+                // save ms2lda load data filename
+                localStorage.setItem("ms2lda_load_data_filename", ms2lda_load_data_filename);
+                load_ms2lda_data_from_local();
+
+
                 display_table(headers, rows, display_columns);
 
                 remove_loading_animation('#analysis');

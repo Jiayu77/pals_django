@@ -540,7 +540,6 @@ def gnps_show_details(request):
     # load database from local
     with open(settings.MEDIA_ROOT+'/'+gnps_load_data_filename, "rb") as gnps_load_data_file:
         database = pickle.load(gnps_load_data_file)
-    
 
     measurement_df = database.extra_data['measurement_df']
     annotation_df = database.extra_data['annotation_df']
@@ -696,6 +695,9 @@ def ms2lda_analysis(request):
             comparisons, gnps_ms2lda_url=ms2lda_url)
 
     database = loader.load_data()
+    # cache datasource
+    ms2lda_load_data_filename = save_object_to_pkl(database, 'ms2lda_load_data.pkl')
+
     measurement_df = database.extra_data['measurement_df']
     annotation_df = database.extra_data['annotation_df']
     experimental_design = database.extra_data['experimental_design']
@@ -731,6 +733,7 @@ def ms2lda_analysis(request):
         'message':'Analysis done!', 
         'data':{
             'table':table,
+            'ms2lda_load_data_filename': ms2lda_load_data_filename
         }
     }
     
@@ -745,36 +748,13 @@ def ms2lda_show_details(request):
 
     # get data from POST
     pathway_name=request.POST.get('pathway_name') # pathway name of selected row of table
+    ms2lda_load_data_filename=request.POST.get('ms2lda_load_data_filename')
     row=json.loads(request.POST.get('row')) # the select row of table
     print('row=', row)
 
-    # get comparisions
-    metadata_df_filename=request.POST.get('ms2lda_metadata_df_filename')
-    ms2lda_url=request.POST.get('motif_data_url')
-    gnps_url=request.POST.get('peak_data_url')
-    comparisons=json.loads(request.POST.get('comparisons'))
-    data_type=request.POST.get('data_type')
-    database_name = DATABASE_GNPS_MS2LDA
-
-    print('metadata_df_filename=', metadata_df_filename)
-    print('gnps_url=', gnps_url)
-    print('comparisons=', comparisons)
-
-    # load data from csv
-    metadata_df = pd.read_csv(settings.MEDIA_ROOT+'/'+metadata_df_filename)
-
-    if data_type == 'upload_file':
-        peak_table_df=request.FILES.get('peak_data_csv')
-        peak_table_df_filename = save_upload_file_to_csv(peak_table_df, 'peak_table_df.csv')
-        peak_table_df = pd.read_csv(settings.MEDIA_ROOT+'/'+peak_table_df_filename)
-
-        loader = GNPSLoader(database_name, gnps_url, metadata_df, 
-            comparisons, gnps_ms2lda_url=ms2lda_url, peak_table_df=peak_table_df)
-    else:
-        loader = GNPSLoader(database_name, gnps_url, metadata_df, 
-            comparisons, gnps_ms2lda_url=ms2lda_url)
-
-    database = loader.load_data()
+    # load database from local
+    with open(settings.MEDIA_ROOT+'/'+ms2lda_load_data_filename, "rb") as ms2lda_load_data_file:
+        database = pickle.load(ms2lda_load_data_file)
 
     measurement_df = database.extra_data['measurement_df']
     annotation_df = database.extra_data['annotation_df']
@@ -787,6 +767,7 @@ def ms2lda_show_details(request):
     df = PLAGE_decomposition(ds)
 
     # we assume comparisons has only one item
+    comparisons = experimental_design['comparisons']
     case = comparisons[0]['case']
     control = comparisons[0]['control']
 
