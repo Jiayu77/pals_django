@@ -60,6 +60,9 @@ def index(request):
     except:
         print("not found pimp token from environment variable")
         content_dict['local_token'] = ''
+    
+    # add active nav id
+    content_dict['active_nav_id'] = '#nav-pathway'
 
     return render(request,'pals_viewer/pathway_index.html', content_dict)
 
@@ -95,6 +98,8 @@ def gnps_index(request):
     content_dict['databases'] = databases
     content_dict['KEGG'] = DATABASE_PIMP_KEGG
     content_dict['reactome_species'] = reactome_species
+    # add active nav id
+    content_dict['active_nav_id'] = '#nav-gnps'
 
     return render(request,'pals_viewer/gnps_index.html', content_dict)
 
@@ -130,6 +135,8 @@ def ms2lda_index(request):
     content_dict['databases'] = databases
     content_dict['KEGG'] = DATABASE_PIMP_KEGG
     content_dict['reactome_species'] = reactome_species
+    # add active nav id
+    content_dict['active_nav_id'] = '#nav-ms2lda'
 
     return render(request,'pals_viewer/ms_two_lda_index.html', content_dict)
 
