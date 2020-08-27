@@ -46,6 +46,7 @@
         <input type="hidden" name="gnps_annotation_df_filename">
         <input type="hidden" name="gnps_measurement_df_filename">
         <input type="hidden" name="experimental_design">
+        <input type="hidden" name="gnps_load_data_filename">
         <div class="col-md-8">
             <div class="form-group"><label>Comparisons</label>
                 <ul class="nav nav-tabs" id="experimental_design_tabs" role="tablist">
@@ -292,6 +293,7 @@
         let gnps_metadata_df = localStorage.getItem("gnps_metadata_df");
         let gnps_url = localStorage.getItem("gnps_url");
         let comparisons = localStorage.getItem("comparisons");
+        let gnps_load_data_filename = localStorage.getItem("gnps_load_data_filename");
 
         if (gnps_metadata_df != null) {
 
@@ -323,6 +325,11 @@
             // comparisons = JSON.parse(comparisons);
             console.log('read comparisons:', comparisons);
             $("[name='comparisons']").val(comparisons);
+        }
+
+        if (gnps_load_data_filename != null) {
+            console.log('read gnps load data:', gnps_load_data_filename);
+            $("[name='gnps_load_data_filename']").val(gnps_load_data_filename);
         }
     }
     // load GNPS data from localstorage
@@ -358,6 +365,7 @@
         console.log('row=', row);
         let pathway_name = row['pw_name'];
         console.log('pathway_name=', pathway_name);
+        let gnps_load_data_filename = $("[name='gnps_load_data_filename']").val();
 
         // ask for backend data
         // get csrf token
@@ -370,6 +378,7 @@
             gnps_url: gnps_url,
             gnps_metadata_df_filename: gnps_metadata_df_filename,
             comparisons: comparisons,
+            gnps_load_data_filename: gnps_load_data_filename
         };
 
         // debug
@@ -475,6 +484,13 @@
                 let headers = table.headers;
                 let rows = table.rows;
                 let display_columns = table.display_columns;
+                let gnps_load_data_filename = data.data.gnps_load_data_filename;
+
+                // save gnps load data filename
+                localStorage.setItem("gnps_load_data_filename", gnps_load_data_filename);
+                load_gnps_data_from_local();
+
+                // display table
                 display_table(headers, rows, display_columns);
 
                 // save data to local

@@ -12,7 +12,7 @@ from pals.common import *
 from bioservices.kegg import KEGG
 
 import requests
-
+import pickle
 import pandas as pd
 import zipfile
 import seaborn as sns
@@ -230,6 +230,17 @@ def save_upload_file_to_csv(upload_file, oldfilename):
             destination.write(chunk)
     print('saved {} to local:{}'.format(oldfilename, newfilepath))
 
+    return newfilename
+
+def save_object_to_pkl(object_to_save, oldfilename):
+    # save object to local
+    now_time = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+    newfilename = oldfilename.replace(".", "_{}.".format(now_time))
+    newfilepath = settings.MEDIA_ROOT+'/'+newfilename
+    pickle_file = open(newfilepath,'wb')
+    pickle.dump(object_to_save, pickle_file)
+    pickle_file.close()
+    print('saved object {} to local:{}'.format(oldfilename, newfilepath))
     return newfilename
 
 def analysis(request):
@@ -469,20 +480,22 @@ def gnps_analysis(request):
     loader = GNPSLoader(database, gnps_url, metadata_df, comparisons)
     database = loader.load_data()
 
+    # cache datasource
+    gnps_load_data_filename = save_object_to_pkl(database, 'gnps_load_data.pkl')
+
     measurement_df = database.extra_data['measurement_df']
     annotation_df = database.extra_data['annotation_df']
     experimental_design = database.extra_data['experimental_design']
 
     # set data source
-    gnps_ds = DataSource(measurement_df, annotation_df, experimental_design, None, database=database, min_replace=SMALL)
-
-    plage = PLAGE(gnps_ds)
+    ds = DataSource(measurement_df, annotation_df, experimental_design, None, database=database, min_replace=SMALL)
+    plage = PLAGE(ds)
     df = plage.get_pathway_df()
 
     df_json = json.loads(df.to_json(orient='split'))
     headers = df_json['columns']
     headers.insert(0, '')
-    
+
     rows = []
     for index, row in zip(df_json['index'], df_json['data']):
         row.insert(0, index)
@@ -497,13 +510,14 @@ def gnps_analysis(request):
     table = {
         'headers': headers,
         'rows': rows,
-        'display_columns': display_columns
+        'display_columns': display_columns,
     }
 
     result = {
         'message':'Analysis done!', 
         'data':{
             'table':table,
+            'gnps_load_data_filename': gnps_load_data_filename,
         }
     }
     
@@ -517,27 +531,16 @@ def gnps_show_details(request):
     content_dict = {}
     details = []
 
-    
     # get data from POST
     pathway_name=request.POST.get('pathway_name') # pathway name of selected row of table
     row=json.loads(request.POST.get('row')) # the select row of table
+    gnps_load_data_filename=request.POST.get('gnps_load_data_filename')
     print('row=', row)
 
-    # get comparisions
-    metadata_df_filename=request.POST.get('gnps_metadata_df_filename')
-    gnps_url=request.POST.get('gnps_url')
-    comparisons=json.loads(request.POST.get('comparisons'))
-    database = DATABASE_GNPS_MOLECULAR_FAMILY
-
-    print('metadata_df_filename=', metadata_df_filename)
-    print('gnps_url=', gnps_url)
-    print('comparisons=', comparisons)
-
-    # load data from csv
-    metadata_df = pd.read_csv(settings.MEDIA_ROOT+'/'+metadata_df_filename)
-
-    loader = GNPSLoader(database, gnps_url, metadata_df, comparisons)
-    database = loader.load_data()
+    # load database from local
+    with open(settings.MEDIA_ROOT+'/'+gnps_load_data_filename, "rb") as gnps_load_data_file:
+        database = pickle.load(gnps_load_data_file)
+    
 
     measurement_df = database.extra_data['measurement_df']
     annotation_df = database.extra_data['annotation_df']
@@ -550,15 +553,16 @@ def gnps_show_details(request):
     df = PLAGE_decomposition(ds)
 
     # we assume comparisons has only one item
+    comparisons = experimental_design['comparisons']
     case = comparisons[0]['case']
     control = comparisons[0]['control']
 
     significant_column = '%s p-value' % (comparisons[0]['name'])
-    df = process_gnps_results(df, significant_column)
+    df_filtered = process_gnps_results(df, significant_column)
 
     all_groups, all_samples, entity_dict, intensities_df, dataset_pathways_to_row_ids = get_plot_data(ds, case, control)
     results = {
-        'df': df,
+        'df': df_filtered,
         'all_groups': all_groups,
         'all_samples': all_samples,
         'entity_dict': entity_dict,
@@ -570,8 +574,9 @@ def gnps_show_details(request):
     # quick hack to pass the motif db urls out for plotting/displaying
     if 'motifdb_urls' in database.extra_data:
         results['motifdb_urls'] = database.extra_data['motifdb_urls']
-    
-    # print('results=', results)
+
+    for key in results:
+        print("{}: type is {}".format(key, type(results[key])))
 
     # if this is molecular family analysis, the selected name will be e.g. 'Molecular Family #123 (...)'
     # since we split by space, we take the token at position 2 and remove the first character to get the index
