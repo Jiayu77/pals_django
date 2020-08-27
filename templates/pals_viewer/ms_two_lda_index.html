@@ -555,7 +555,8 @@
                 let table = data.data.table;
                 let headers = table.headers;
                 let rows = table.rows;
-                display_table(headers, rows);
+                let display_columns = table.display_columns;
+                display_table(headers, rows, display_columns);
 
                 remove_loading_animation('#analysis');
                 show_message('Info', data.message);

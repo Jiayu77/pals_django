@@ -157,7 +157,7 @@
         // display single row detail
 
         // display table
-        function display_table(headers, rows) {
+        function display_table(headers, rows, display_columns=[]) {
 
             // clean old table
             let result_table = $("#result-table");
@@ -177,6 +177,7 @@
             // }]
             headers[0] = "id";
             let columns = new Array();
+            let display_fields = [];
             for (let i = 0; i < headers.length; i++) {
                 const element = headers[i];
 
@@ -185,6 +186,10 @@
                     "field": "header-" + i,
                     "sortable": true,
                 };
+
+                if (display_columns.indexOf(element) > -1) {
+                    display_fields.push("header-"+i);
+                }
 
                 if (i == 1) {
                     column["formatter"] = operateFormatter
@@ -210,6 +215,15 @@
                 columns: columns,
                 data: data
             })
+
+            // if exists display columns, just hide all columns and show 
+            // display columns
+            if (display_fields.length > 0) {
+                result_table.bootstrapTable('hideAllColumns');
+                display_fields.forEach(element => {
+                    result_table.bootstrapTable('showColumn', element);
+                });
+            }
         }
         // display table
 

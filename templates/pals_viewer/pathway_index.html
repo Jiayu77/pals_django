@@ -125,10 +125,10 @@
                             aria-controls="comparison" aria-selected="false">2. Set Comparisons</a>
                     </li>
                     <!-- <li class="nav-item" role="presentation">
-                                        <a class="nav-link" id="experimental_design_tab" data-toggle="tab"
-                                            href="#experimental_design" role="tab" aria-controls="experimental_design"
-                                            aria-selected="false">3. View Current Experimental Design</a>
-                                    </li> -->
+                        <a class="nav-link" id="experimental_design_tab" data-toggle="tab" href="#experimental_design"
+                            role="tab" aria-controls="experimental_design" aria-selected="false">3. View Current
+                            Experimental Design</a>
+                    </li> -->
                 </ul>
                 <div class="tab-content" id="experimental_design_tabs_content">
                     <div class="tab-pane fade show active" id="group" role="tabpanel" aria-labelledby="group_tab">
@@ -453,7 +453,7 @@
 
         new_row.append($(
             "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"delete_group($(this))\">Delete</button></td>"
-            ));
+        ));
 
         $("#group-tbody").append(new_row);
 
@@ -506,7 +506,7 @@
         new_row.append($("<td>" + comparison_control + "</td>"));
         new_row.append($(
             "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"delete_comparison($(this))\">Delete</button></td>"
-            ));
+        ));
 
         $("#comparison-tbody").append(new_row);
 
@@ -772,7 +772,8 @@
                 let table = data.data.table;
                 let headers = table.headers;
                 let rows = table.rows;
-                display_table(headers, rows);
+                let display_columns = table.display_columns;
+                display_table(headers, rows, display_columns);
                 remove_loading_animation('#analysis');
                 show_message('Info', data.message);
             },

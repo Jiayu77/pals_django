@@ -286,9 +286,16 @@ def analysis(request):
         row.insert(0, index)
         rows.append(row)
 
+    # default display pathway name, p-values and F values
+    display_columns = ["pw_name", "unq_pw_F", "tot_ds_F", "F_coverage"]
+    for comparison in experimental_design['comparisons']:
+        comparison_name = comparison['name']
+        display_columns.append("{} p-value".format(comparison_name))
+
     table = {
         'headers': headers,
-        'rows': rows
+        'rows': rows,
+        'display_columns': display_columns
     }
 
     result = {'message':'Analysis done!', 'data':{'table':table}}
@@ -480,10 +487,17 @@ def gnps_analysis(request):
     for index, row in zip(df_json['index'], df_json['data']):
         row.insert(0, index)
         rows.append(row)
+    
+    # default display pathway name, p-values and F values
+    display_columns = ["pw_name", "unq_pw_F", "tot_ds_F", "F_coverage"]
+    for comparison in experimental_design['comparisons']:
+        comparison_name = comparison['name']
+        display_columns.append("{} p-value".format(comparison_name))
 
     table = {
         'headers': headers,
-        'rows': rows
+        'rows': rows,
+        'display_columns': display_columns
     }
 
     result = {
@@ -696,9 +710,16 @@ def ms2lda_analysis(request):
         row.insert(0, index)
         rows.append(row)
 
+    # default display pathway name, p-values and F values
+    display_columns = ["pw_name", "unq_pw_F", "tot_ds_F", "F_coverage"]
+    for comparison in experimental_design['comparisons']:
+        comparison_name = comparison['name']
+        display_columns.append("{} p-value".format(comparison_name))
+
     table = {
         'headers': headers,
-        'rows': rows
+        'rows': rows,
+        'display_columns': display_columns
     }
 
     result = {
