@@ -1,1141 +1,934 @@
-<!doctype html>
-<html lang="en">
+{% extends 'base.html' %}
+{% block content %}
+<div class="content">
+    <h1 class="mt-4 mb-4">PALS - Pathway Activity Level Scoring</h1>
 
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <h3>Pathway Analysis</h3>
+    <p>Please upload your intensity (example) and annotation (example) CSV files from the sidebar. Next,
+        select the case and control groups, the pathway analysis method as well as the database to use.
+    </p>
 
-    {% load static %}
+    <!-- pimp setting -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2>1. Please set data source</h2>
+        </div>
+    </div>
+    <!-- fetch data -->
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"
-    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-
-    <!-- bootstrap-table -->
-    <link href="{% static 'css/bootstrap-table.css' %}" rel="stylesheet">
-
-    <!-- font font-awesome -->
-    <link href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}" rel="stylesheet">
-
-    <!-- bootstrap-select -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
-    <!-- bootstrap-select -->
-
-    <title>Pathway Analysis</title>
-</head>
-
-<body>
-    <div class="container">
-        <!-- Nav bar -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded">
-            <a class="navbar-brand" href="#">PALS Viewer by Django</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'pals_viewer:index' %}">Pathway </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="{% url 'pals_viewer:gnps_index' %}">GNPS Molecular Family </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'pals_viewer:ms2lda_index' %}">GNPS-MS2LDA </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-        <!-- Nav bar -->
-        <div class="row">
-            <div class="col-md-12">
-                <!-- content -->
-                <div class="content">
-                    <h1 class="mt-4 mb-4">PALS - Pathway Activity Level Scoring</h1>
-
-                    <h3>Pathway Analysis</h3>
-                    <p>Please upload your intensity (example) and annotation (example) CSV files from the sidebar. Next,
-                        select the case and control groups, the pathway analysis method as well as the database to use.
-                    </p>
-
-                    <!-- pimp setting -->
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h2>1. Please set data source</h2>
-                        </div>
-                    </div>
-                    <!-- fetch data -->
-
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                            <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link active" id="by_account_tab" data-toggle="tab" href="#by_account"
-                                        role="tab" aria-controls="by_account" aria-selected="true">By Account</a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link" id="by_upload_file_tab" data-toggle="tab" href="#by_upload_file"
-                                        role="tab" aria-controls="by_upload_file" aria-selected="false">Upload File</a>
-                                </li>
-                                <!-- <li class="nav-item" role="presentation">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="by_account_tab" data-toggle="tab" href="#by_account" role="tab"
+                        aria-controls="by_account" aria-selected="true">By Account</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="by_upload_file_tab" data-toggle="tab" href="#by_upload_file" role="tab"
+                        aria-controls="by_upload_file" aria-selected="false">Upload File</a>
+                </li>
+                <!-- <li class="nav-item" role="presentation">
                                     <a class="nav-link" id="by_token_tab" data-toggle="tab" href="#by_token" role="tab"
                                         aria-controls="contact" aria-selected="false">By Token</a>
                                 </li> -->
-                            </ul>
-                            <div class="tab-content" id="myTabContent">
-                                {% csrf_token %}
-                                <div class="tab-pane fade show active" id="by_account" role="tabpanel"
-                                    aria-labelledby="by_account_tab">
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                {% csrf_token %}
+                <div class="tab-pane fade show active" id="by_account" role="tabpanel" aria-labelledby="by_account_tab">
 
-                                    <div class="row">
+                    <div class="row">
 
-                                        <div class="col-md-4">
-                                            <div class="form-group mt-2"><label>Username</label><input type="text"
-                                                    class="form-control" name="username" value=""></div>
-                                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mt-2"><label>Username</label><input type="text" class="form-control"
+                                    name="username" value=""></div>
+                        </div>
 
-                                        <div class="col-md-4">
-                                            <div class="form-group mt-2"><label>Analysis ID</label><input type="text"
-                                                    class="form-control" name="by_account_analysis_id" value="1321">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="form-group"><label>Password</label><input type="password"
-                                                    class="form-control" name="password" value=""></div>
-                                        </div>
-                                    </div>
-
-
-                                </div>
-                                <div class="tab-pane fade" id="by_upload_file" role="tabpanel"
-                                    aria-labelledby="by_upload_file_tab">
-
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="form-group mt-2"><label>Intensity CSV</label><input type="file"
-                                                    class="form-control-file" name="int_df" value="1321">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group mt-2"><label>Annotation CSV</label><input type="file"
-                                                    class="form-control-file" name="annotation_df" value="1321">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div class="tab-pane fade" id="by_token" role="tabpanel" aria-labelledby="by_token_tab">
-                                    <div class="row">
-
-                                        <div class="col-md-4">
-                                            <div class="form-group mt-2"><label>Token</label><input type="text"
-                                                    class="form-control" name="token" value="{{local_token}}"></div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group mt-2"><label>Analysis ID</label><input type="text"
-                                                    class="form-control" name="analysis_id" value="1321">
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div class="col-md-4">
+                            <div class="form-group mt-2"><label>Analysis ID</label><input type="text"
+                                    class="form-control" name="by_account_analysis_id" value="1321">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Password</label><input type="password" class="form-control"
+                                    name="password" value=""></div>
+                        </div>
+                    </div>
 
 
+                </div>
+                <div class="tab-pane fade" id="by_upload_file" role="tabpanel" aria-labelledby="by_upload_file_tab">
 
-                                </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group mt-2"><label>Intensity CSV</label><input type="file"
+                                    class="form-control-file" name="int_df" value="1321">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mt-2"><label>Annotation CSV</label><input type="file"
+                                    class="form-control-file" name="annotation_df" value="1321">
                             </div>
                         </div>
                     </div>
 
-                    <!-- fetch data -->
-
-                    <!-- get data -->
+                </div>
+                <div class="tab-pane fade" id="by_token" role="tabpanel" aria-labelledby="by_token_tab">
                     <div class="row">
-                        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2" id="get_data"><span
-                                    id="get_data_start">Get Data</span><span id="get_data_running"><span
-                                        class="spinner-border spinner-border-lg" role="status"
-                                        aria-hidden="true"></span>
-                                    Running...</span></button></div>
-                    </div>
-                    <!-- get data -->
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h2>2. Please set experimental design</h2>
+                        <div class="col-md-4">
+                            <div class="form-group mt-2"><label>Token</label><input type="text" class="form-control"
+                                    name="token" value="{{local_token}}"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mt-2"><label>Analysis ID</label><input type="text"
+                                    class="form-control" name="analysis_id" value="1321">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="form-group"><label>Experimental Design</label>
-                                <ul class="nav nav-tabs" id="experimental_design_tabs" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <a class="nav-link active" id="group_tab" data-toggle="tab" href="#group" role="tab"
-                                            aria-controls="group" aria-selected="true">1. Add Groups</a>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <a class="nav-link" id="comparison_tab" data-toggle="tab"
-                                            href="#comparison" role="tab" aria-controls="comparison"
-                                            aria-selected="false">2. Set Comparisons</a>
-                                    </li>
-                                    <!-- <li class="nav-item" role="presentation">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- fetch data -->
+
+    <!-- get data -->
+    <div class="row">
+        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2" id="get_data"><span
+                    id="get_data_start">Get Data</span><span id="get_data_running"><span
+                        class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
+                    Running...</span></button></div>
+    </div>
+    <!-- get data -->
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2>2. Please set experimental design</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group"><label>Experimental Design</label>
+                <ul class="nav nav-tabs" id="experimental_design_tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="group_tab" data-toggle="tab" href="#group" role="tab"
+                            aria-controls="group" aria-selected="true">1. Add Groups</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="comparison_tab" data-toggle="tab" href="#comparison" role="tab"
+                            aria-controls="comparison" aria-selected="false">2. Set Comparisons</a>
+                    </li>
+                    <!-- <li class="nav-item" role="presentation">
                                         <a class="nav-link" id="experimental_design_tab" data-toggle="tab"
                                             href="#experimental_design" role="tab" aria-controls="experimental_design"
                                             aria-selected="false">3. View Current Experimental Design</a>
                                     </li> -->
-                                </ul>
-                                <div class="tab-content" id="experimental_design_tabs_content">
-                                    <div class="tab-pane fade show active" id="group" role="tabpanel" aria-labelledby="group_tab">
-                                        <button type="button"
-                                            class="btn btn-large btn-block btn-success mt-3 mb-3" onclick="add_group()">Add</button>
-                                        <div id="group_toolbar" style="margin: 0;"></div>
-                                        <table class="table table-hover" id="group-table" data-unique-id="header-0"
-                                            data-toolbar="#group_toolbar" data-pagination="true"
-                                            data-page-list="[10, 25, 50, 100, all]">
-                                            <thead>
-                                                <tr>
-                                                    <th>Name</th>
-                                                    <th>Columns</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="group-tbody"></tbody>
-                                        </table>
-                                    </div>
-                                    <div class="tab-pane fade" id="comparison" role="tabpanel"
-                                        aria-labelledby="comparison_tab">
-
-                                        <button type="button"
-                                            class="btn btn-large btn-block btn-success mt-3 mb-3" onclick="add_comparison()">Add</button>
-
-                                        <div id="comparison_toolbar" style="margin: 0;"></div>
-                                        <table class="table table-hover" id="comparison-table" data-unique-id="header-0"
-                                            data-toolbar="#comparison_toolbar" data-pagination="true"
-                                            data-page-list="[10, 25, 50, 100, all]">
-                                            <thead>
-                                                <tr>
-                                                    <th>Name</th>
-                                                    <th>Case</th>
-                                                    <th>Control</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="comparison-tbody"></tbody>
-                                        </table>
-                                    </div>
-                                    <div class="tab-pane fade" id="experimental_design" role="tabpanel" aria-labelledby="experimental_design_tab">
-                                        <textarea class="form-control mt-3 mb-3" rows="3" name="experimental_design"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                </ul>
+                <div class="tab-content" id="experimental_design_tabs_content">
+                    <div class="tab-pane fade show active" id="group" role="tabpanel" aria-labelledby="group_tab">
+                        <button type="button" class="btn btn-large btn-block btn-success mt-3 mb-3"
+                            onclick="add_group()">Add</button>
+                        <div id="group_toolbar" style="margin: 0;"></div>
+                        <table class="table table-hover" id="group-table" data-unique-id="header-0"
+                            data-toolbar="#group_toolbar" data-pagination="true"
+                            data-page-list="[10, 25, 50, 100, all]">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Columns</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="group-tbody"></tbody>
+                        </table>
                     </div>
-                    <!-- pimp setting -->
+                    <div class="tab-pane fade" id="comparison" role="tabpanel" aria-labelledby="comparison_tab">
+
+                        <button type="button" class="btn btn-large btn-block btn-success mt-3 mb-3"
+                            onclick="add_comparison()">Add</button>
+
+                        <div id="comparison_toolbar" style="margin: 0;"></div>
+                        <table class="table table-hover" id="comparison-table" data-unique-id="header-0"
+                            data-toolbar="#comparison_toolbar" data-pagination="true"
+                            data-page-list="[10, 25, 50, 100, all]">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Case</th>
+                                    <th>Control</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparison-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="experimental_design" role="tabpanel"
+                        aria-labelledby="experimental_design_tab">
+                        <textarea class="form-control mt-3 mb-3" rows="3" name="experimental_design"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- pimp setting -->
 
 
-                    <!-- analysis method select -->
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h2>3. Please select analysis method options</h2>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <input type="hidden" name="keypath_int_df_filename">
-                            <input type="hidden" name="keypath_annotation_df_filename">
-                            <div class="form-group"><label>Pathway Analysis Method</label>
-                                <select name="pathway_analysis_method" class="form-control" required="required">
-                                    <option>PLAGE</option>
-                                    <option>ORA</option>
-                                    <option>GSEA</option>
-                                </select></div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group"><label>Database</label><select name="database" class="form-control"
-                                    required="required">
-                                    {% for database in databases %}
-                                    <option>{{database}}</option>
-                                    {% endfor %}
-                                </select></div>
-                            <div class="form-group"><label>Reactome Species</label><select name="reactome_species"
-                                    class="form-control" required="required">
-                                    {% for reactome_specy in reactome_species %}
-                                    <option>{{reactome_specy}}</option>
-                                    {% endfor %}
-                                </select></div>
-                            <div class="form-group form-check"><input type="checkbox" class="form-check-input"
-                                    name="reactome_metabolic_pathway_only"><label class="form-check-label">Limit to
-                                    metabolic pathways only.</label></div>
-                            <div class="form-group form-check"><input type="checkbox" class="form-check-input"
-                                    name="reactome_query"><label class="form-check-label">Connect to a Reactome Neo4j
-                                    database (Online Mode).</label>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- submit -->
-                    <div class="row">
-                        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2" id="analysis"><span
-                                    id="analysis_start">Start Analysis And Get Results</span><span
-                                    id="analysis_running"><span class="spinner-border spinner-border-lg" role="status"
-                                        aria-hidden="true"></span> Running...</span></button></div>
-                    </div>
-                    <!-- submit -->
-                    <!-- analysis method select -->
+    <!-- analysis method select -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2>3. Please select analysis method options</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <input type="hidden" name="keypath_int_df_filename">
+            <input type="hidden" name="keypath_annotation_df_filename">
+            <div class="form-group"><label>Pathway Analysis Method</label>
+                <select name="pathway_analysis_method" class="form-control" required="required">
+                    <option>PLAGE</option>
+                    <option>ORA</option>
+                    <option>GSEA</option>
+                </select></div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group"><label>Database</label><select name="database" class="form-control"
+                    required="required">
+                    {% for database in databases %}
+                    <option>{{database}}</option>
+                    {% endfor %}
+                </select></div>
+            <div class="form-group"><label>Reactome Species</label><select name="reactome_species" class="form-control"
+                    required="required">
+                    {% for reactome_specy in reactome_species %}
+                    <option>{{reactome_specy}}</option>
+                    {% endfor %}
+                </select></div>
+            <div class="form-group form-check"><input type="checkbox" class="form-check-input"
+                    name="reactome_metabolic_pathway_only"><label class="form-check-label">Limit to
+                    metabolic pathways only.</label></div>
+            <div class="form-group form-check"><input type="checkbox" class="form-check-input"
+                    name="reactome_query"><label class="form-check-label">Connect to a Reactome Neo4j
+                    database (Online Mode).</label>
+            </div>
+        </div>
+    </div>
+    <!-- submit -->
+    <div class="row">
+        <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2" id="analysis"><span
+                    id="analysis_start">Start Analysis And Get Results</span><span id="analysis_running"><span
+                        class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
+                    Running...</span></button></div>
+    </div>
+    <!-- submit -->
+    <!-- analysis method select -->
 
-                    <hr>
+    <hr>
 
-                    <!-- display result -->
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h2>4. Results</h2>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div id="toolbar" style="margin: 0;"></div>
-                            <table class="table table-hover" id="result-table" data-unique-id="header-0"
-                                data-toolbar="#toolbar" data-pagination="true" data-search="true"
-                                data-show-export="true" data-page-list="[10, 25, 50, 100, all]" data-show-columns="true"></table>
-                            <!-- <div class="table-responsive pd-2 rounded">
+    <!-- display result -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2>4. Results</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div id="toolbar" style="margin: 0;"></div>
+            <table class="table table-hover" id="result-table" data-unique-id="header-0" data-toolbar="#toolbar"
+                data-pagination="true" data-search="true" data-show-export="true"
+                data-page-list="[10, 25, 50, 100, all]" data-show-columns="true"></table>
+            <!-- <div class="table-responsive pd-2 rounded">
                             </div> -->
-                        </div>
-                    </div>
-                    <!-- display result -->
-                </div>
-                <!-- content -->
-            </div>
         </div>
-
     </div>
+    <!-- display result -->
+</div>
+{% endblock %}
 
-    <!-- modal comparison form -->
-    <div class="modal fade" tabindex="-1" role="dialog" id="modal-comparison">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Comparison</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="modal-comparison-content">
-                    <input type="hidden" name="save_comparison_type">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group mt-2"><label>Name</label><input type="text" class="form-control"
-                                    name="comparison_name" value="1321">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group mt-2"><label>Case</label>
-                                <select name="comparison_case" class="form-control" required="required"></select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group mt-2"><label>Control</label>
-                                <select name="comparison_control" class="form-control" required="required"></select>
-                            </div>
+{% block modals %}
+<!-- modal comparison form -->
+<div class="modal fade" tabindex="-1" role="dialog" id="modal-comparison">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Comparison</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-comparison-content">
+                <input type="hidden" name="save_comparison_type">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group mt-2"><label>Name</label><input type="text" class="form-control"
+                                name="comparison_name" value="1321">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="save_comparison()">Save</button>
-
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group mt-2"><label>Case</label>
+                            <select name="comparison_case" class="form-control" required="required"></select>
+                        </div>
+                    </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group mt-2"><label>Control</label>
+                            <select name="comparison_control" class="form-control" required="required"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="save_comparison()">Save</button>
+
             </div>
         </div>
     </div>
-    <!-- modal comparison form -->
+</div>
+<!-- modal comparison form -->
 
-    <!-- modal group form -->
-    <div class="modal fade" tabindex="-1" role="dialog" id="modal-group">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Group</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="modal-group-content">
-                    <input type="hidden" name="save_group_type">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group mt-2"><label>Name</label><input type="text" class="form-control"
-                                    name="group_name" value="1321">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group mt-2"><label>Case</label>
-                                <select name="group_column" class="form-control" required="required" multiple
-                                    data-live-search="true"></select>
-
-                            </div>
+<!-- modal group form -->
+<div class="modal fade" tabindex="-1" role="dialog" id="modal-group">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-group-content">
+                <input type="hidden" name="save_group_type">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group mt-2"><label>Name</label><input type="text" class="form-control"
+                                name="group_name" value="1321">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="save_group()">Save</button>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group mt-2"><label>Case</label>
+                            <select name="group_column" class="form-control" required="required" multiple
+                                data-live-search="true"></select>
 
+                        </div>
+                    </div>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="save_group()">Save</button>
+
             </div>
         </div>
     </div>
-    <!-- modal group form -->
+</div>
+<!-- modal group form -->
 
-    <!-- modal detail -->
-    <div class="modal fade" tabindex="-1" role="dialog" id="modal-detail">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Detail</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="modal-detail-content">
-                    <h4>map00130: Ubiquinone and other terpenoid-quinone biosynthesis [<a
-                            href="https://www.genome.jp/dbget-bin/www_bget?map00130" target="_blank"
-                            rel="noopener noreferrer">Info</a>]</h4>
-                    <p>p-value: 0.001586</p>
-                    <p>Formula Hits: 6</p>
-                    <p>Summary:</p>
-                    <p>CLASS : Metabolism; Metabolism of cofactors and vitamins</p>
-                    <img src="https://www.genome.jp/kegg/pathway/map/map00130.png" class="img-fluid" alt="" srcset="">
-                </div>
+<!-- modal detail -->
+<div class="modal fade" tabindex="-1" role="dialog" id="modal-detail">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-detail-content">
+                <h4>map00130: Ubiquinone and other terpenoid-quinone biosynthesis [<a
+                        href="https://www.genome.jp/dbget-bin/www_bget?map00130" target="_blank"
+                        rel="noopener noreferrer">Info</a>]</h4>
+                <p>p-value: 0.001586</p>
+                <p>Formula Hits: 6</p>
+                <p>Summary:</p>
+                <p>CLASS : Metabolism; Metabolism of cofactors and vitamins</p>
+                <img src="https://www.genome.jp/kegg/pathway/map/map00130.png" class="img-fluid" alt="" srcset="">
             </div>
         </div>
     </div>
-    <!-- modal detail -->
+</div>
+<!-- modal detail -->
+{% endblock %}
+{% block custom_javascript %}
+<script>
+    // ---------------- init global parameters ----------------
+    let bootstrap_table = null;
+    let global_comparison = {};
 
-    <div id="example_message" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true"
-        data-autohide="true" data-delay="3000" style="width: 200px;">
-        <div class="toast-header">
-            <strong class="mr-auto" id="message_type"></strong>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="toast-body" id="message"></div>
-    </div>
+    // ---------------- init global parameters ----------------
 
-    <div aria-live="polite" aria-atomic="true">
-        <!-- Position it -->
-        <div id="message_list" style="position: fixed; top: 20px; right: 20px;">
-            <!-- Then put toasts within -->
-        </div>
-    </div>
+    // init multi select
+    function init_multiselect() {
+        $("[name='group_column']").selectpicker('destroy');
+        $("[name='group_column']").selectpicker();
+    }
+    // init multi select
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"
-        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
-    </script>
+    // update this group
+    function update_row(button) {
 
-        <!-- bootstrap-table -->
-        <script src="{% static 'js/tableExport.min.js' %}"></script>
-        <script src="{% static 'js/bootstrap-table.min.js' %}"></script>
-        <script src="{% static 'js/bootstrap-table-export.min.js' %}">
-        </script>
-    
-        <!-- bootstrap-select -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+        let row = button.parent().parent(':first').children();
+        let course_id = row.eq(0).children(":first").attr("data-course_id");
+        $("[name='update_name']")[0].value = row.eq(1).text();
+        $("[name='update_description']")[0].value = row.eq(2).text();
+        $("[name='update_exam_at']")[0].value = row.eq(3).text();
+        let exam_type = row.eq(4).text();
+        $("[name='update_location']")[0].value = row.eq(5).text();
+        $("[name='update_url']")[0].value = row.eq(6).text();
 
-    <script>
-        // ---------------- init global parameters ----------------
-        let bootstrap_table = null;
-        let global_comparison = {};
+        // select course
+        console.log('update course id: ', course_id);
+        $("[name='update_course_id']").val(course_id);
 
-        // ---------------- init global parameters ----------------
 
-        // init multi select
-        function init_multiselect() {
-            $("[name='group_column']").selectpicker('destroy');
-            $("[name='group_column']").selectpicker();
+        // select exam type
+        if (exam_type == 'Online') {
+            $("[name='update_exam_type'][value='1']").prop("checked", true);
+        } else {
+            $("[name='update_exam_type'][value='0']").prop("checked", true);
         }
-        // init multi select
 
-        // update this group
-        function update_row(button) {
+        // display modal
+        $("#modal-update").modal("show");
+    }
+    // update this group
 
-            let row = button.parent().parent(':first').children();
-            let course_id = row.eq(0).children(":first").attr("data-course_id");
-            $("[name='update_name']")[0].value = row.eq(1).text();
-            $("[name='update_description']")[0].value = row.eq(2).text();
-            $("[name='update_exam_at']")[0].value = row.eq(3).text();
-            let exam_type = row.eq(4).text();
-            $("[name='update_location']")[0].value = row.eq(5).text();
-            $("[name='update_url']")[0].value = row.eq(6).text();
+    // add new group
+    function add_group() {
+        console.log('add group ...');
 
-            // select course
-            console.log('update course id: ', course_id);
-            $("[name='update_course_id']").val(course_id);
+        // set save type
+        $("[name='save_group_type']")[0].value = 'add';
 
+        // clean all data
+        $("[name='group_name']")[0].value = '';
 
-            // select exam type
-            if (exam_type == 'Online') {
-                $("[name='update_exam_type'][value='1']").prop("checked", true);
-            } else {
-                $("[name='update_exam_type'][value='0']").prop("checked", true);
+        // display modal
+        $("#modal-group").modal("show");
+    }
+    // add new group
+
+    // add new comparison
+    function add_comparison() {
+        console.log('add comparison ...');
+
+        // set save type
+        $("[name='save_comparison_type']")[0].value = 'add';
+
+        // clean all data
+        $("[name='comparison_name']")[0].value = '';
+
+        // display modal
+        $("#modal-comparison").modal("show");
+    }
+    // add new comparison
+
+    // save group to comparison select option
+    function save_group() {
+        // get input group data
+        let group_name = $("[name='group_name']")[0].value;
+        let group_column = $("[name='group_column']").val();
+        let save_type = $("[name='save_group_type']")[0].value;
+
+        // add new row to table
+        let new_row = $("<tr></tr>");
+        new_row.append($("<td>" + group_name + "</td>"));
+
+        let column_td = $("<td></td>");
+        group_column.forEach(column => {
+            column_td.append($("<span>" + column + "</span>"));
+        });
+        new_row.append(column_td);
+
+        new_row.append($(
+            "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"delete_group($(this))\">Delete</button></td>"
+            ));
+
+        $("#group-tbody").append(new_row);
+
+        // add new group to comparison select option
+        $("[name='comparison_case']").append("<option>" + group_name + "</option>");
+        $("[name='comparison_control']").append("<option>" + group_name + "</option>");
+
+        // update global group data
+        if (undefined == global_comparison['groups']) {
+            global_comparison['groups'] = {};
+        }
+        global_comparison['groups'][group_name] = group_column;
+
+        // close modal
+        $("#modal-group").modal('hide');
+
+        console.log('current global comparison:', global_comparison);
+    }
+    // save group to comparison select option
+
+    // delete group
+    function delete_group(button) {
+        // find this group name
+        let row = button.parent().parent(':first').children();
+        let group_name = row.eq(0).text();
+
+        console.log('deleting group :', group_name);
+
+        // delete group name from global comparison
+        delete global_comparison['groups'][group_name];
+
+        // TODO:delete group name from comparison table
+
+        // delete this row
+        button.parent().parent(':first').remove();
+    }
+    // delete group
+
+    // save comparison and update text
+    function save_comparison() {
+        // get input group data
+        let comparison_control = $("[name='comparison_control']").val();
+        let comparison_case = $("[name='comparison_case']").val();
+        let comparison_name = $("[name='comparison_name']")[0].value;
+
+        // add new row to table
+        let new_row = $("<tr></tr>");
+        new_row.append($("<td>" + comparison_name + "</td>"));
+        new_row.append($("<td>" + comparison_case + "</td>"));
+        new_row.append($("<td>" + comparison_control + "</td>"));
+        new_row.append($(
+            "<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"delete_comparison($(this))\">Delete</button></td>"
+            ));
+
+        $("#comparison-tbody").append(new_row);
+
+        // update global group data
+
+        let new_comparison = {
+            'name': comparison_name,
+            'case': comparison_case,
+            'control': comparison_control,
+        }
+
+        if (undefined == global_comparison['comparisons']) {
+            global_comparison['comparisons'] = [];
+        }
+        global_comparison['comparisons'].push(new_comparison);
+
+        // update experimental design
+        $("[name='experimental_design']").val(JSON.stringify(global_comparison));
+
+        // close modal
+        $("#modal-comparison").modal('hide');
+
+        console.log('current global comparison:', global_comparison);
+    }
+    // save comparison and update text
+
+    // delete comparison
+    function delete_comparison(button) {
+        // find this comparison name
+        let row = button.parent().parent(':first').children();
+        let comparison_name = row.eq(0).text();
+
+        console.log('deleting comparison :', comparison_name);
+
+        // delete group name from global comparison
+        let target_comparison_index = -1;
+        global_comparison['comparisons'].forEach((comparison, index) => {
+            if (comparison['name'] == comparision_name) {
+                target_comparison_index = index;
+                return false;
             }
+        });
 
-            // display modal
-            $("#modal-update").modal("show");
+        global_comparison['comparisons'].splice(target_comparison_index, 1);
+
+        // update experimental design
+        $("[name='experimental_design']").val(JSON.stringify(global_comparison));
+
+        // delete this row
+        button.parent().parent(':first').remove();
+        console.log('current global comparison:', global_comparison);
+    }
+    // delete comparison
+
+    // display details
+    function display_detail(index) {
+        console.log('display index:', index);
+
+        // get this row data
+        let row_header = $('#result-table').bootstrapTable('getRowByUniqueId', index);
+        console.log('row header=', row_header)
+
+        // replay row key by real names
+        let columns = $('#result-table').bootstrapTable('getVisibleColumns');
+        console.log('columns=', columns);
+        let column_dict = {};
+        columns.forEach(column => {
+            column_dict[column["field"]] = column["title"];
+        });
+        console.log('column dict=', column_dict);
+
+        let row = {}
+        for (const key in row_header) {
+            const element = row_header[key];
+            const new_key = column_dict[key];
+            row[new_key] = element;
         }
-        // update this group
 
-        // add new group
-        function add_group() {
-            console.log('add group ...');
+        // set taget keys
+        row["p-value"] = row["beer1/beer2 p-value"];
+        row["Formula Hits"] = row["F_coverage"];
 
-            // set save type
-            $("[name='save_group_type']")[0].value = 'add';
+        console.log('row=', row);
+        let pathway_name = row['pw_name'];
+        console.log('pathway_name=', pathway_name);
+        let id = index;
+        console.log('id=', id);
 
-            // clean all data
-            $("[name='group_name']")[0].value = '';
+        // ask for backend data
+        // get csrf token
+        let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
+        // get csrf token
 
-            // display modal
-            $("#modal-group").modal("show");
+        let data = {
+            csrfmiddlewaretoken: csrfmiddlewaretoken,
+            row: JSON.stringify(row),
+            pathway_name: pathway_name,
+            id: id
+        };
+
+        let token = $("[name='token']")[0].value;
+        let database = $("[name='database']").val();
+
+        let url = ''
+        if (database == '{{KEGG}}') {
+            url = "{% url 'pals_viewer:show_kegg_diagram' %}"
+        } else {
+            url = "{% url 'pals_viewer:show_reactome_diagram' %}"
+            data['token'] = token;
         }
-        // add new group
 
-        // add new comparison
-        function add_comparison() {
-            console.log('add comparison ...');
-
-            // set save type
-            $("[name='save_comparison_type']")[0].value = 'add';
-
-            // clean all data
-            $("[name='comparison_name']")[0].value = '';
-
-            // display modal
-            $("#modal-comparison").modal("show");
-        }
-        // add new comparison
-
-        // save group to comparison select option
-        function save_group() {
-            // get input group data
-            let group_name = $("[name='group_name']")[0].value;
-            let group_column = $("[name='group_column']").val();
-            let save_type = $("[name='save_group_type']")[0].value;
-
-            // add new row to table
-            let new_row = $("<tr></tr>");
-            new_row.append($("<td>"+group_name+"</td>"));
-
-            let column_td = $("<td></td>");
-            group_column.forEach(column => {
-                column_td.append($("<span>"+column+"</span>"));
-            });
-            new_row.append(column_td);
-
-            new_row.append($("<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"delete_group($(this))\">Delete</button></td>"));
-
-            $("#group-tbody").append(new_row);
-            
-            // add new group to comparison select option
-            $("[name='comparison_case']").append("<option>"+group_name+"</option>");
-            $("[name='comparison_control']").append("<option>"+group_name+"</option>");
-
-            // update global group data
-            if (undefined == global_comparison['groups']) {
-                global_comparison['groups'] = {};
-            }
-            global_comparison['groups'][group_name] = group_column;
-
-            // close modal
-            $("#modal-group").modal('hide');
-            
-            console.log('current global comparison:', global_comparison);
-        }
-        // save group to comparison select option
-
-        // delete group
-        function delete_group(button) {
-            // find this group name
-            let row = button.parent().parent(':first').children();
-            let group_name = row.eq(0).text();
-
-            console.log('deleting group :', group_name);
-
-            // delete group name from global comparison
-            delete global_comparison['groups'][group_name];
-
-            // TODO:delete group name from comparison table
-
-            // delete this row
-            button.parent().parent(':first').remove();
-        }
-        // delete group
-        
-        // save comparison and update text
-        function save_comparison() {
-            // get input group data
-            let comparison_control = $("[name='comparison_control']").val();
-            let comparison_case = $("[name='comparison_case']").val();
-            let comparison_name = $("[name='comparison_name']")[0].value;
-
-            // add new row to table
-            let new_row = $("<tr></tr>");
-            new_row.append($("<td>"+comparison_name+"</td>"));
-            new_row.append($("<td>"+comparison_case+"</td>"));
-            new_row.append($("<td>"+comparison_control+"</td>"));
-            new_row.append($("<td><button type=\"button\" class=\"btn btn-danger\" onclick=\"delete_comparison($(this))\">Delete</button></td>"));
-
-            $("#comparison-tbody").append(new_row);
-
-            // update global group data
-
-            let new_comparison = {
-                'name': comparison_name,
-                'case': comparison_case,
-                'control': comparison_control,
-            }
-
-            if (undefined == global_comparison['comparisons']) {
-                global_comparison['comparisons'] = [];
-            }
-            global_comparison['comparisons'].push(new_comparison);
-
-            // update experimental design
-            $("[name='experimental_design']").val(JSON.stringify(global_comparison));
-
-            // close modal
-            $("#modal-comparison").modal('hide');
-            
-            console.log('current global comparison:', global_comparison);
-        }
-        // save comparison and update text
-
-        // delete comparison
-        function delete_comparison(button) {
-            // find this comparison name
-            let row = button.parent().parent(':first').children();
-            let comparison_name = row.eq(0).text();
-
-            console.log('deleting comparison :', comparison_name);
-
-            // delete group name from global comparison
-            let target_comparison_index = -1;
-            global_comparison['comparisons'].forEach((comparison, index) => {
-                if (comparison['name'] == comparision_name) {
-                    target_comparison_index = index;
-                    return false;
+        // get all inputs, then post and get result
+        // if error, just show errors
+        // if success, just show tables
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: data,
+            dataType: "json",
+            success: function (data) {
+                console.log(data);
+                let status = data.status;
+                if (status == 'success') {
+                    let details = data.data.details;
+                    $('#modal-detail-content').html(details);
+                    $('#modal-detail').modal('show');
+                } else {
+                    let message = data.message;
+                    show_message('Error', message);
                 }
-            });
-
-            global_comparison['comparisons'].splice(target_comparison_index, 1);
-
-            // update experimental design
-            $("[name='experimental_design']").val(JSON.stringify(global_comparison));
-
-            // delete this row
-            button.parent().parent(':first').remove();
-            console.log('current global comparison:', global_comparison);
-        }
-        // delete comparison
-
-        // display loading animation
-        function display_loading_animation(button_id) {
-            let start_icon = button_id + '_start';
-            let running_icon = button_id + '_running';
-            $(start_icon).hide();
-            $(running_icon).show();
-            $(button_id).attr("disabled", true);
-        }
-        // display loading animation
-
-        // remove loading animation
-        function remove_loading_animation(button_id) {
-            let start_icon = button_id + '_start';
-            let running_icon = button_id + '_running';
-            $(start_icon).show();
-            $(running_icon).hide();
-            $(button_id).removeAttr("disabled");
-        }
-        // remove loading animation
-
-        // show message or error
-        function show_message(message_type, content) {
-            // set new content
-            $("#message_type").text(message_type);
-            $("#message").text(content);
-
-            // clone the new message
-            let new_toast = $("#example_message").clone();
-
-            // remove ids
-            new_toast.removeAttr("id");
-
-            // add new message to message list
-            $("#message_list").append(new_toast);
-
-            // show the new message
-            new_toast.toast('show');
-        }
-        // show message or error
-
-        // display details
-        function display_detail(index) {
-            console.log('display index:', index);
-
-            // get this row data
-            let row_header = $('#result-table').bootstrapTable('getRowByUniqueId', index);
-            console.log('row header=', row_header)
-
-            // replay row key by real names
-            let columns = $('#result-table').bootstrapTable('getVisibleColumns');
-            console.log('columns=', columns);
-            let column_dict = {};
-            columns.forEach(column => {
-                column_dict[column["field"]] = column["title"];
-            });
-            console.log('column dict=', column_dict);
-
-            let row = {}
-            for (const key in row_header) {
-                const element = row_header[key];
-                const new_key = column_dict[key];
-                row[new_key] = element;
-            }
-
-            // set taget keys
-            row["p-value"] = row["beer1/beer2 p-value"];
-            row["Formula Hits"] = row["F_coverage"];
-
-            console.log('row=', row);
-            let pathway_name = row['pw_name'];
-            console.log('pathway_name=', pathway_name);
-            let id = index;
-            console.log('id=', id);
-
-            // ask for backend data
-            // get csrf token
-            let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
-            // get csrf token
-
-            let data = {
-                csrfmiddlewaretoken: csrfmiddlewaretoken,
-                row: JSON.stringify(row),
-                pathway_name: pathway_name,
-                id: id
-            };
-
-            let token = $("[name='token']")[0].value;
-            let database = $("[name='database']").val();
-
-            let url = ''
-            if (database == '{{KEGG}}') {
-                url = "{% url 'pals_viewer:show_kegg_diagram' %}"
-            } else {
-                url = "{% url 'pals_viewer:show_reactome_diagram' %}"
-                data['token'] = token;
-            }
-
-            // get all inputs, then post and get result
-            // if error, just show errors
-            // if success, just show tables
-            $.ajax({
-                url: url,
-                type: "POST",
-                data: data,
-                dataType: "json",
-                success: function (data) {
-                    console.log(data);
-                    let status = data.status;
-                    if (status == 'success') {
-                        let details = data.data.details;
-                        $('#modal-detail-content').html(details);
-                        $('#modal-detail').modal('show');
-                    } else {
-                        let message = data.message;
-                        show_message('Error', message);
-                    }
-                },
-                error: function (jqXHR, textStatus, err) {
+            },
+            error: function (jqXHR, textStatus, err) {
+                console.log(arguments);
+                remove_loading_animation('#analysis');
+                show_message('Error', err);
+            },
+            complete: function (jqXHR, textStatus) {
+                console.log(textStatus);
+                remove_loading_animation('#analysis');
+                // show_message('Info', 'Done!');
+            },
+            statusCode: {
+                '403': function (jqXHR, textStatus, err) {
                     console.log(arguments);
                     remove_loading_animation('#analysis');
                     show_message('Error', err);
                 },
-                complete: function (jqXHR, textStatus) {
-                    console.log(textStatus);
+                '400': function (jqXHR, textStatus, err) {
+                    console.log(arguments);
                     remove_loading_animation('#analysis');
-                    // show_message('Info', 'Done!');
+                    show_message('Error', err);
+                }
+            }
+        });
+    }
+    // display details
+
+    // load keypath data from localstorage
+    function load_keypath_data_from_local() {
+        let keypath_int_df = localStorage.getItem("keypath_int_df");
+        let keypath_annotation_df = localStorage.getItem("keypath_annotation_df");
+        let keypath_experimental_design = localStorage.getItem("keypath_experimental_design");
+
+        if (keypath_int_df != null) {
+            keypath_int_df = JSON.parse(keypath_int_df);
+            console.log('read keypath int df:', keypath_int_df);
+
+            $("[name='keypath_int_df_filename']").val(keypath_int_df.filename);
+
+            // reset columns to group select option
+            $("[name='group_column']").empty();
+            let group_select = $("[name='group_column']");
+            keypath_int_df.columns.forEach(column => {
+                group_select.append($("<option>" + column + "</option>"));
+            });
+            init_multiselect();
+        }
+
+        if (keypath_annotation_df != null) {
+            keypath_annotation_df = JSON.parse(keypath_annotation_df);
+            console.log('read keypath annotation df:', keypath_annotation_df);
+            $("[name='keypath_annotation_df_filename']").val(keypath_annotation_df.filename);
+        }
+
+        if (keypath_experimental_design != null) {
+            // keypath_experimental_design = JSON.parse(keypath_experimental_design);
+            console.log('read experimental design:', keypath_experimental_design);
+            $("[name='experimental_design']").val(keypath_experimental_design);
+        }
+    }
+    // load keypath data from localstorage
+
+    // 1. at first, we need to set the button to correct status
+    remove_loading_animation('#analysis');
+    remove_loading_animation('#get_data');
+
+    // loading localStorage cache data
+    load_keypath_data_from_local();
+
+    // init multi select
+    init_multiselect();
+
+    // 2. binding the click event to button
+    //    if click the button, we need to submit data
+    $('#analysis').click(function () {
+        // display loading animation
+        display_loading_animation('#analysis');
+
+        // get all inputs, then post and get result
+        // let token = $("[name='token']")[0].value;
+        // let analysis_id = $("[name='analysis_id']")[0].value;
+        let keypath_int_df_filename = $("[name='keypath_int_df_filename']").val();
+        let keypath_annotation_df_filename = $("[name='keypath_annotation_df_filename']").val();
+        let experimental_design = $("[name='experimental_design']")[0].value;
+        let pathway_analysis_method = $("[name='pathway_analysis_method']").val();
+        let database = $("[name='database']").val();
+        let reactome_species = $("[name='reactome_species']").val();
+        let reactome_metabolic_pathway_only = false;
+        if ($("[name='reactome_metabolic_pathway_only']").is(':checked')) {
+            reactome_metabolic_pathway_only = true;
+        }
+        let reactome_query = false;
+        if ($("[name='reactome_query']").is(':checked')) {
+            reactome_query = true;
+        }
+
+        // get csrf token
+        let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
+        // get csrf token
+
+        // debug
+        window.console.log('keypath_int_df_filename=', keypath_int_df_filename)
+        window.console.log('keypath_annotation_df_filename=', keypath_annotation_df_filename)
+        window.console.log('experimental_design=', experimental_design)
+        window.console.log('pathway_analysis_method=', pathway_analysis_method)
+        window.console.log('database=', database)
+        window.console.log('reactome_species=', reactome_species)
+        window.console.log('reactome_metabolic_pathway_only=', reactome_metabolic_pathway_only)
+        window.console.log('reactome_query=', reactome_query)
+        // debug
+        let data = {
+            csrfmiddlewaretoken: csrfmiddlewaretoken,
+            keypath_int_df_filename: keypath_int_df_filename,
+            keypath_annotation_df_filename: keypath_annotation_df_filename,
+            experimental_design: experimental_design,
+            pathway_analysis_method: pathway_analysis_method,
+            database: database,
+            reactome_species: reactome_species,
+            reactome_metabolic_pathway_only: reactome_metabolic_pathway_only,
+            reactome_query: reactome_query
+        };
+
+        // get all inputs, then post and get result
+        // if error, just show errors
+        // if success, just show tables
+        $.ajax({
+            url: "{% url 'pals_viewer:analysis' %}",
+            type: "POST",
+            data: data,
+            dataType: "json",
+            success: function (data) {
+                console.log(data);
+                let table = data.data.table;
+                let headers = table.headers;
+                let rows = table.rows;
+                display_table(headers, rows);
+                remove_loading_animation('#analysis');
+                show_message('Info', data.message);
+            },
+            error: function (jqXHR, textStatus, err) {
+                console.log(arguments);
+                remove_loading_animation('#analysis');
+                show_message('Error', err);
+            },
+            complete: function (jqXHR, textStatus) {
+                console.log(textStatus);
+                remove_loading_animation('#analysis');
+                // show_message('Info', 'Done!');
+            },
+            statusCode: {
+                '403': function (jqXHR, textStatus, err) {
+                    console.log(arguments);
+                    remove_loading_animation('#analysis');
+                    show_message('Error', err);
                 },
-                statusCode: {
-                    '403': function (jqXHR, textStatus, err) {
-                        console.log(arguments);
-                        remove_loading_animation('#analysis');
-                        show_message('Error', err);
-                    },
-                    '400': function (jqXHR, textStatus, err) {
-                        console.log(arguments);
-                        remove_loading_animation('#analysis');
-                        show_message('Error', err);
-                    }
-                }
-            });
-        }
-        // display details
-
-        // display single row detail
-        function operateFormatter(value, row, index) {
-            console.log('index', index, 'row=', row);
-            return [
-                '<a class="view" href="javascript:void(0)" onclick="display_detail(\'' + row["header-0"] +
-                '\')" title="View">',
-                // '<a class="view" href="javascript:void(0)" onclick="display_detail(\''+row["header-0"]+'\')" title="View">',
-                '<i class="fa fa-eye"></i>',
-                ' ',
-                value,
-                '</a>  ',
-            ].join('')
-        }
-        // display single row detail
-
-        // display table
-        function display_table(headers, rows) {
-
-            // clean old table
-            let result_table = $("#result-table");
-            result_table.empty();
-
-            // add header config
-            // make each column sortable
-            // column config example:
-            // [{
-            //     title: 'Item ID',
-            //     field: 'id',
-            //     rowspan: 2,
-            //     align: 'center',
-            //     valign: 'middle',
-            //     sortable: true,
-            //     footerFormatter: totalTextFormatter
-            // }]
-            headers[0] = "id";
-            let columns = new Array();
-            for (let i = 0; i < headers.length; i++) {
-                const element = headers[i];
-
-                let column = {
-                    "title": element,
-                    "field": "header-" + i,
-                    "sortable": true,
-                };
-
-                if (i == 1) {
-                    column["formatter"] = operateFormatter
-                }
-                columns.push(column);
-            }
-
-            // make table data
-            data = [];
-            rows.forEach(row => {
-                let tr = {};
-                for (let i = 0; i < row.length; i++) {
-                    tr["header-" + i] = row[i];
-                }
-                data.push(tr);
-            });
-
-            // init table
-            bootstrap_table = result_table.bootstrapTable('destroy').bootstrapTable({
-                showExport: true,
-                exportDataType: "all",
-                exportTypes: ['json', 'csv', 'txt'],
-                columns: columns,
-                data: data
-            })
-        }
-        // display table
-
-        // load keypath data from localstorage
-        function load_keypath_data_from_local() {
-            let keypath_int_df = localStorage.getItem("keypath_int_df");
-            let keypath_annotation_df = localStorage.getItem("keypath_annotation_df");
-            let keypath_experimental_design = localStorage.getItem("keypath_experimental_design");
-
-            if (keypath_int_df != null) {
-                keypath_int_df = JSON.parse(keypath_int_df);
-                console.log('read keypath int df:', keypath_int_df);
-
-                $("[name='keypath_int_df_filename']").val(keypath_int_df.filename);
-
-                // reset columns to group select option
-                $("[name='group_column']").empty();
-                let group_select = $("[name='group_column']");
-                keypath_int_df.columns.forEach(column => {
-                    group_select.append($("<option>"+column+"</option>"));
-                });
-                init_multiselect();
-            }
-
-            if (keypath_annotation_df != null) {
-                keypath_annotation_df = JSON.parse(keypath_annotation_df);
-                console.log('read keypath annotation df:', keypath_annotation_df);
-                $("[name='keypath_annotation_df_filename']").val(keypath_annotation_df.filename);
-            }
-
-            if (keypath_experimental_design != null) {
-                // keypath_experimental_design = JSON.parse(keypath_experimental_design);
-                console.log('read experimental design:', keypath_experimental_design);
-                $("[name='experimental_design']").val(keypath_experimental_design);
-            }
-        }
-        // load keypath data from localstorage
-
-        // 1. at first, we need to set the button to correct status
-        remove_loading_animation('#analysis');
-        remove_loading_animation('#get_data');
-
-        // loading localStorage cache data
-        load_keypath_data_from_local();
-
-        // init multi select
-        init_multiselect();
-
-        // 2. binding the click event to button
-        //    if click the button, we need to submit data
-        $('#analysis').click(function () {
-            // display loading animation
-            display_loading_animation('#analysis');
-
-            // get all inputs, then post and get result
-            // let token = $("[name='token']")[0].value;
-            // let analysis_id = $("[name='analysis_id']")[0].value;
-            let keypath_int_df_filename = $("[name='keypath_int_df_filename']").val();
-            let keypath_annotation_df_filename = $("[name='keypath_annotation_df_filename']").val();
-            let experimental_design = $("[name='experimental_design']")[0].value;
-            let pathway_analysis_method = $("[name='pathway_analysis_method']").val();
-            let database = $("[name='database']").val();
-            let reactome_species = $("[name='reactome_species']").val();
-            let reactome_metabolic_pathway_only = false;
-            if ($("[name='reactome_metabolic_pathway_only']").is(':checked')) {
-                reactome_metabolic_pathway_only = true;
-            }
-            let reactome_query = false;
-            if ($("[name='reactome_query']").is(':checked')) {
-                reactome_query = true;
-            }
-
-            // get csrf token
-            let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
-            // get csrf token
-
-            // debug
-            window.console.log('keypath_int_df_filename=', keypath_int_df_filename)
-            window.console.log('keypath_annotation_df_filename=', keypath_annotation_df_filename)
-            window.console.log('experimental_design=', experimental_design)
-            window.console.log('pathway_analysis_method=', pathway_analysis_method)
-            window.console.log('database=', database)
-            window.console.log('reactome_species=', reactome_species)
-            window.console.log('reactome_metabolic_pathway_only=', reactome_metabolic_pathway_only)
-            window.console.log('reactome_query=', reactome_query)
-            // debug
-            let data = {
-                csrfmiddlewaretoken: csrfmiddlewaretoken,
-                keypath_int_df_filename: keypath_int_df_filename,
-                keypath_annotation_df_filename: keypath_annotation_df_filename,
-                experimental_design: experimental_design,
-                pathway_analysis_method: pathway_analysis_method,
-                database: database,
-                reactome_species: reactome_species,
-                reactome_metabolic_pathway_only: reactome_metabolic_pathway_only,
-                reactome_query: reactome_query
-            };
-
-            // get all inputs, then post and get result
-            // if error, just show errors
-            // if success, just show tables
-            $.ajax({
-                url: "{% url 'pals_viewer:analysis' %}",
-                type: "POST",
-                data: data,
-                dataType: "json",
-                success: function (data) {
-                    console.log(data);
-                    let table = data.data.table;
-                    let headers = table.headers;
-                    let rows = table.rows;
-                    display_table(headers, rows);
+                '400': function (jqXHR, textStatus, err) {
+                    console.log(arguments);
                     remove_loading_animation('#analysis');
+                    show_message('Error', err);
+                }
+            }
+        });
+    });
+
+    // 3. binding the click event to button
+    //    if click the button, we need to get data from remote
+    $('#get_data').click(function () {
+        // display loading animation
+        display_loading_animation('#get_data');
+
+        let data_type = 'token';
+
+        // get all inputs, then post and get result
+        let token = $("[name='token']")[0].value;
+        let analysis_id = $("[name='analysis_id']")[0].value;
+
+        let username = $("[name='username']")[0].value;
+        let password = $("[name='password']")[0].value;
+        let by_account_analysis_id = $("[name='by_account_analysis_id']")[0].value;
+
+        let int_csv = $("[name='int_df']")[0].files[0];
+        let annotation_csv = $("[name='annotation_df']")[0].files[0];
+
+        // get csrf token
+        let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
+        // get csrf token
+
+        // get active tab
+        if ($("#by_token").hasClass("active")) {
+            data_type = 'token';
+        } else if ($("#by_account").hasClass("active")) {
+            data_type = 'account';
+        } else {
+            data_type = 'upload_file';
+        }
+        console.log("get data by type: " + data_type);
+
+        // debug
+        window.console.log('token=', token)
+        window.console.log('analysis_id=', analysis_id)
+        window.console.log('data_type=', data_type)
+        window.console.log('csrfmiddlewaretoken=', csrfmiddlewaretoken)
+        // debug
+        let data = {};
+        let processData = true; // required for file uploading
+        let contentType = 'application/x-www-form-urlencoded'; // required for file uploading
+        if (data_type == 'upload_file') {
+            data = new FormData();
+            data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
+            data.append('token', token);
+            data.append('analysis_id', analysis_id);
+            data.append('username', username);
+            data.append('password', password);
+            data.append('by_account_analysis_id', by_account_analysis_id);
+            data.append('int_csv', int_csv);
+            data.append('annotation_csv', annotation_csv);
+            data.append('data_type', data_type);
+            processData = false;
+            contentType = false;
+        } else {
+            data = {
+                csrfmiddlewaretoken: csrfmiddlewaretoken,
+                token: token,
+                analysis_id: analysis_id,
+                username: username,
+                password: password,
+                by_account_analysis_id: by_account_analysis_id,
+                int_csv: int_csv,
+                annotation_csv: annotation_csv,
+                data_type: data_type,
+            };
+        }
+
+        // get all inputs, then post and get result
+        // if error, just show errors
+        // if success, just show tables
+        $.ajax({
+            url: "{% url 'pals_viewer:keypath_get_data' %}",
+            type: "POST",
+            data: data,
+            dataType: "json",
+            processData: processData, // required for file uploading
+            contentType: contentType, // required for file uploading
+            success: function (data) {
+                console.log(data);
+                let status = data.status;
+
+                if (status == 'success') {
+                    // save data to local
+                    let int_df = data.data.int_df;
+                    let annotation_df = data.data.annotation_df;
+                    let experimental_design = data.data.experimental_design;
+                    localStorage.setItem("keypath_int_df", JSON.stringify(int_df));
+                    localStorage.setItem("keypath_annotation_df", JSON.stringify(
+                        annotation_df));
+                    localStorage.setItem("keypath_experimental_design", JSON.stringify(
+                        experimental_design));
+                    console.log('save int_df and annotation_df to local...');
+
+                    // load data to page
+                    load_keypath_data_from_local();
+
+                    remove_loading_animation('#get_data');
                     show_message('Info', data.message);
-                },
-                error: function (jqXHR, textStatus, err) {
-                    console.log(arguments);
-                    remove_loading_animation('#analysis');
-                    show_message('Error', err);
-                },
-                complete: function (jqXHR, textStatus) {
-                    console.log(textStatus);
-                    remove_loading_animation('#analysis');
-                    // show_message('Info', 'Done!');
-                },
-                statusCode: {
-                    '403': function (jqXHR, textStatus, err) {
-                        console.log(arguments);
-                        remove_loading_animation('#analysis');
-                        show_message('Error', err);
-                    },
-                    '400': function (jqXHR, textStatus, err) {
-                        console.log(arguments);
-                        remove_loading_animation('#analysis');
-                        show_message('Error', err);
-                    }
+                } else {
+                    remove_loading_animation('#get_data');
+                    show_message('Error', data.message);
                 }
-            });
-        });
-
-        // 3. binding the click event to button
-        //    if click the button, we need to get data from remote
-        $('#get_data').click(function () {
-            // display loading animation
-            display_loading_animation('#get_data');
-
-            let data_type = 'token';
-
-            // get all inputs, then post and get result
-            let token = $("[name='token']")[0].value;
-            let analysis_id = $("[name='analysis_id']")[0].value;
-
-            let username = $("[name='username']")[0].value;
-            let password = $("[name='password']")[0].value;
-            let by_account_analysis_id = $("[name='by_account_analysis_id']")[0].value;
-
-            let int_csv = $("[name='int_df']")[0].files[0];
-            let annotation_csv = $("[name='annotation_df']")[0].files[0];
-
-            // get csrf token
-            let csrfmiddlewaretoken = $("[name='csrfmiddlewaretoken']").val();
-            // get csrf token
-
-            // get active tab
-            if ($("#by_token").hasClass("active")) {
-                data_type = 'token';
-            } else if ($("#by_account").hasClass("active")) {
-                data_type = 'account';
-            } else {
-                data_type = 'upload_file';
-            }
-            console.log("get data by type: " + data_type);
-
-            // debug
-            window.console.log('token=', token)
-            window.console.log('analysis_id=', analysis_id)
-            window.console.log('data_type=', data_type)
-            window.console.log('csrfmiddlewaretoken=', csrfmiddlewaretoken)
-            // debug
-            let data = {};
-            let processData = true; // required for file uploading
-            let contentType = 'application/x-www-form-urlencoded'; // required for file uploading
-            if (data_type == 'upload_file') {
-                data = new FormData();
-                data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
-                data.append('token', token);
-                data.append('analysis_id', analysis_id);
-                data.append('username', username);
-                data.append('password', password);
-                data.append('by_account_analysis_id', by_account_analysis_id);
-                data.append('int_csv', int_csv);
-                data.append('annotation_csv', annotation_csv);
-                data.append('data_type', data_type);
-                processData = false;
-                contentType = false;
-            } else {
-                data = {
-                    csrfmiddlewaretoken: csrfmiddlewaretoken,
-                    token: token,
-                    analysis_id: analysis_id,
-                    username: username,
-                    password: password,
-                    by_account_analysis_id: by_account_analysis_id,
-                    int_csv: int_csv,
-                    annotation_csv: annotation_csv,
-                    data_type: data_type,
-                };
-            }
-
-            // get all inputs, then post and get result
-            // if error, just show errors
-            // if success, just show tables
-            $.ajax({
-                url: "{% url 'pals_viewer:keypath_get_data' %}",
-                type: "POST",
-                data: data,
-                dataType: "json",
-                processData: processData, // required for file uploading
-                contentType: contentType, // required for file uploading
-                success: function (data) {
-                    console.log(data);
-                    let status = data.status;
-
-                    if (status == 'success') {
-                        // save data to local
-                        let int_df = data.data.int_df;
-                        let annotation_df = data.data.annotation_df;
-                        let experimental_design = data.data.experimental_design;
-                        localStorage.setItem("keypath_int_df", JSON.stringify(int_df));
-                        localStorage.setItem("keypath_annotation_df", JSON.stringify(
-                            annotation_df));
-                        localStorage.setItem("keypath_experimental_design", JSON.stringify(
-                            experimental_design));
-                        console.log('save int_df and annotation_df to local...');
-
-                        // load data to page
-                        load_keypath_data_from_local();
-
-                        remove_loading_animation('#get_data');
-                        show_message('Info', data.message);
-                    } else {
-                        remove_loading_animation('#get_data');
-                        show_message('Error', data.message);
-                    }
-                },
-                error: function (jqXHR, textStatus, err) {
+            },
+            error: function (jqXHR, textStatus, err) {
+                console.log(arguments);
+                remove_loading_animation('#get_data');
+                show_message('Error', err);
+            },
+            complete: function (jqXHR, textStatus) {
+                console.log(textStatus);
+                remove_loading_animation('#get_data');
+                // show_message('Info', 'Done!');
+            },
+            statusCode: {
+                '403': function (jqXHR, textStatus, err) {
                     console.log(arguments);
                     remove_loading_animation('#get_data');
                     show_message('Error', err);
                 },
-                complete: function (jqXHR, textStatus) {
-                    console.log(textStatus);
+                '400': function (jqXHR, textStatus, err) {
+                    console.log(arguments);
                     remove_loading_animation('#get_data');
-                    // show_message('Info', 'Done!');
-                },
-                statusCode: {
-                    '403': function (jqXHR, textStatus, err) {
-                        console.log(arguments);
-                        remove_loading_animation('#get_data');
-                        show_message('Error', err);
-                    },
-                    '400': function (jqXHR, textStatus, err) {
-                        console.log(arguments);
-                        remove_loading_animation('#get_data');
-                        show_message('Error', err);
-                    }
+                    show_message('Error', err);
                 }
-            });
+            }
         });
-
-    </script>
-</body>
-
-</html>
+    });
+</script>
+{% endblock %}
