@@ -1,7 +1,7 @@
 import json
 from django.conf import settings
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from pals.pimp_tools import get_pimp_API_token_from_env, PIMP_HOST, download_from_pimp
 from pals.feature_extraction import DataSource
 from pals.loader import GNPSLoader
@@ -151,15 +151,13 @@ def keypath_get_data(request):
         return None
     
     # get data from POST
-    token=request.POST.get('token')
-    analysis_id=int(request.POST.get('analysis_id'))
     data_type=request.POST.get('data_type') # data type can be token, account and file
 
-    print('token=', token)
-    print('analysis_id=', analysis_id)
     print('data_type=', data_type)
 
     if data_type == 'token':
+        token=request.POST.get('token')
+        analysis_id=int(request.POST.get('analysis_id'))
         # get data by token
         # download data from PiMP
         int_df, annotation_df, experimental_design = download_from_pimp(token, PIMP_HOST, analysis_id, 'kegg')
@@ -179,7 +177,7 @@ def keypath_get_data(request):
             'annotation_df': {'filename': annotation_df_filename, 'columns': annotation_df_columns},
             'experimental_design': experimental_design
         }}
-        return HttpResponse(json.dumps(result))
+        return JsonResponse(result)
     elif data_type == 'account':
         pass
     elif data_type == 'upload_file':
@@ -206,10 +204,10 @@ def keypath_get_data(request):
             'annotation_df': {'filename': annotation_df_filename, 'columns': annotation_df_columns},
             'experimental_design': experimental_design
         }}
-        return HttpResponse(json.dumps(result))
+        return JsonResponse(result)
     else:
         result = {'status':'error', 'message':'Illegal data type!', 'data':{}}
-        return HttpResponse(json.dumps(result))
+        return JsonResponse(result)
 
 def save_dataframe_to_csv(df, oldfilename):
     # save data to local
@@ -311,7 +309,7 @@ def analysis(request):
 
     result = {'message':'Analysis done!', 'data':{'table':table}}
     
-    return HttpResponse(json.dumps(result))
+    return JsonResponse(result)
 
 def show_kegg_diagram(request):
     if request.method != 'POST':
@@ -351,7 +349,7 @@ def show_kegg_diagram(request):
 
     result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
 
-    return HttpResponse(json.dumps(result))
+    return JsonResponse(result)
 
 def show_reactome_diagram(request):
     if request.method != 'POST':
@@ -372,7 +370,7 @@ def show_reactome_diagram(request):
     status_code, json_response = get_reactome_info(stId)
     if status_code != 200:
         result = {'status':'error', 'message':'Get reactome info fail!', 'data':{'details':[]}}
-        return HttpResponse(json.dumps(result))
+        return JsonResponse(result)
 
     # calculate information
     label = '%s: %s' % (stId, pathway_name)
@@ -401,7 +399,7 @@ def show_reactome_diagram(request):
 
     result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
 
-    return HttpResponse(json.dumps(result))
+    return JsonResponse(result)
 
 def get_kegg_info(stId):
     k = KEGG()
@@ -456,7 +454,7 @@ def gnps_get_data(request):
     result = {'status':'success', 'message':'Load data done!', 'data':{
         'metadata_df': {'filename': metadata_df_filename, 'columns': metadata_df_columns, 'groups': group_values}
     }}
-    return HttpResponse(json.dumps(result))
+    return JsonResponse(result)
 
 
 def gnps_analysis(request):
@@ -521,7 +519,7 @@ def gnps_analysis(request):
         }
     }
     
-    return HttpResponse(json.dumps(result))
+    return JsonResponse(result)
 
 
 def gnps_show_details(request):
@@ -532,7 +530,6 @@ def gnps_show_details(request):
     details = []
 
     # get data from POST
-    pathway_name=request.POST.get('pathway_name') # pathway name of selected row of table
     row=json.loads(request.POST.get('row')) # the select row of table
     gnps_load_data_filename=request.POST.get('gnps_load_data_filename')
     print('row=', row)
@@ -636,7 +633,7 @@ def gnps_show_details(request):
     details.append(member_df.to_html(escape=False))
 
     result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
-    return HttpResponse(json.dumps(result))
+    return JsonResponse(result)
 
 def ms2lda_get_data(request):
     if request.method != 'POST':
@@ -665,7 +662,7 @@ def ms2lda_get_data(request):
             'groups': group_values
         }
     }}
-    return HttpResponse(json.dumps(result))
+    return JsonResponse(result)
 
 def ms2lda_analysis(request):
     # get data from POST
@@ -737,7 +734,7 @@ def ms2lda_analysis(request):
         }
     }
     
-    return HttpResponse(json.dumps(result))
+    return JsonResponse(result)
 
 def ms2lda_show_details(request):
     if request.method != 'POST':
@@ -747,7 +744,6 @@ def ms2lda_show_details(request):
     details = []
 
     # get data from POST
-    pathway_name=request.POST.get('pathway_name') # pathway name of selected row of table
     ms2lda_load_data_filename=request.POST.get('ms2lda_load_data_filename')
     row=json.loads(request.POST.get('row')) # the select row of table
     print('row=', row)
@@ -850,7 +846,7 @@ def ms2lda_show_details(request):
     details.append(member_df.to_html(escape=False))
 
     result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
-    return HttpResponse(json.dumps(result))
+    return JsonResponse(result)
 
 
 def PLAGE_decomposition(ds):
