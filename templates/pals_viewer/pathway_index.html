@@ -238,12 +238,34 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <div id="toolbar" style="margin: 0;"></div>
-            <table class="table table-hover" id="result-table" data-unique-id="header-0" data-toolbar="#toolbar"
-                data-pagination="true" data-search="true" data-show-export="true"
-                data-page-list="[10, 25, 50, 100, all]" data-show-columns="true"></table>
-            <!-- <div class="table-responsive pd-2 rounded">
-                            </div> -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="result_tab_nav" data-toggle="tab" href="#result_tab" role="tab"
+                        aria-controls="result_tab" aria-selected="true">Result Table</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="detail_tab_nav" data-toggle="tab" href="#detail_tab" role="tab"
+                        aria-controls="detail_tab" aria-selected="false">Detail</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="result_tab" role="tabpanel" aria-labelledby="result_tab_nav">
+                    <div id="toolbar" style="margin: 0;"></div>
+                    <table class="table table-hover" id="result-table" data-unique-id="header-0" data-toolbar="#toolbar"
+                        data-pagination="true" data-search="true" data-show-export="true"
+                        data-page-list="[10, 25, 50, 100, all]" data-show-columns="true"></table>
+                </div>
+                <div class="tab-pane fade" id="detail_tab" role="tabpanel" aria-labelledby="detail_tab_nav">
+                    <h5 class="mt-2 mb-2">If you want to turn back to result table page, please click result table tab.</h5>
+                    <div id="modal-detail-content"></div>
+                    <div id="diagramHolder"></div> 
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <!-- <div id="diagramHolder"></div> -->
         </div>
     </div>
     <!-- display result -->
@@ -335,37 +357,16 @@
 </div>
 <!-- modal group form -->
 
-<!-- modal detail -->
-<div class="modal fade" tabindex="-1" role="dialog" id="modal-detail">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Detail</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="modal-detail-content">
-                <h4>map00130: Ubiquinone and other terpenoid-quinone biosynthesis [<a
-                        href="https://www.genome.jp/dbget-bin/www_bget?map00130" target="_blank"
-                        rel="noopener noreferrer">Info</a>]</h4>
-                <p>p-value: 0.001586</p>
-                <p>Formula Hits: 6</p>
-                <p>Summary:</p>
-                <p>CLASS : Metabolism; Metabolism of cofactors and vitamins</p>
-                <img src="https://www.genome.jp/kegg/pathway/map/map00130.png" class="img-fluid" alt="" srcset="">
-            </div>
-        </div>
-    </div>
-</div>
-<!-- modal detail -->
 {% endblock %}
 {% block custom_javascript %}
+
+<script src="https://reactome.org/DiagramJs/diagram/diagram.nocache.js"></script>
+
 <script>
     // ---------------- init global parameters ----------------
     let bootstrap_table = null;
     let global_comparison = {};
-
+    let reactomeDiagram = null;
     // ---------------- init global parameters ----------------
 
     // init multi select
@@ -604,7 +605,7 @@
             csrfmiddlewaretoken: csrfmiddlewaretoken,
             row: JSON.stringify(row),
             pathway_name: pathway_name,
-            id: id
+            id: id,
         };
 
         let token = $("[name='token']")[0].value;
@@ -632,7 +633,23 @@
                 if (status == 'success') {
                     let details = data.data.details;
                     $('#modal-detail-content').html(details);
-                    $('#modal-detail').modal('show');
+
+                    // we MUST MUST MUST display the detail page before load diagram!!!!!!
+                    // otherwise there would be error!!!!
+                    $('#detail_tab_nav').click();
+
+                    if (database == '{{KEGG}}') {
+                    } else {
+                        if (reactomeDiagram == null) {
+                            reactomeDiagram = Reactome.Diagram.create({
+                                "placeHolder": "diagramHolder",
+                                "width": 900,
+                                "height": 500
+                            });
+                        }
+                        reactomeDiagram.loadDiagram(id);
+                    }
+
                 } else {
                     let message = data.message;
                     show_message('Error', message);
@@ -692,7 +709,6 @@
         }
 
         if (keypath_experimental_design != null) {
-            // keypath_experimental_design = JSON.parse(keypath_experimental_design);
             console.log('read experimental design:', keypath_experimental_design);
             $("[name='experimental_design']").val(keypath_experimental_design);
         }
@@ -773,6 +789,8 @@
                 let headers = table.headers;
                 let rows = table.rows;
                 let display_columns = table.display_columns;
+                
+                // display table
                 display_table(headers, rows, display_columns);
                 remove_loading_animation('#analysis');
                 show_message('Info', data.message);
@@ -931,5 +949,6 @@
             }
         });
     });
+
 </script>
 {% endblock %}

@@ -388,14 +388,14 @@ def show_reactome_diagram(request):
     for summation in json_response['summation']:
         details.append('<p>{}</p>'.format(summation['text']))
 
-    image_url = 'https://reactome.org/ContentService/exporter/diagram/%s.png?quality=8&diagramProfile=standard&analysisProfile=strosobar' % stId
-    if token is not None:
-        # TODO: the token always show invalid, so we cancel it.
-        # image_url += '&token=%s&resource=TOTAL&expColumn=0' % token
-        pass
+    # image_url = 'https://reactome.org/ContentService/exporter/diagram/%s.png?quality=8&diagramProfile=standard&analysisProfile=strosobar' % stId
+    # if token is not None:
+    #     # TODO: the token always show invalid, so we cancel it.
+    #     # image_url += '&token=%s&resource=TOTAL&expColumn=0' % token
+    #     pass
 
-    logger.debug('image_url = %s' % image_url)
-    details.append('<img src="{}" class="img-fluid" alt="" srcset="">'.format(image_url))
+    # logger.debug('image_url = %s' % image_url)
+    # details.append('<img src="{}" class="img-fluid" alt="" srcset="">'.format(image_url))
 
     result = {'status':'success', 'message':'Analysis done!', 'data':{'details':details}}
 
