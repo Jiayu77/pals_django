@@ -192,6 +192,7 @@ def keypath_get_data(request):
         # read data and transfer them to dataframe
         int_df = pd.read_csv(settings.MEDIA_ROOT+'/'+int_df_filename)
         int_df.set_index('row_id', inplace=True)
+
         annotation_df = pd.read_csv(settings.MEDIA_ROOT+'/'+annotation_df_filename)
         annotation_df.set_index('row_id', inplace=True)
 
@@ -267,8 +268,8 @@ def analysis(request):
 
     # load data from csv and reset first row as index
     # we must set first row as index, because the original table is it
-    int_df = pd.read_csv(settings.MEDIA_ROOT+'/'+int_df_filename)
-    int_df.set_index('row_id', inplace=True)
+    int_df = pd.read_csv(settings.MEDIA_ROOT+'/'+int_df_filename, skiprows=[1], index_col=0)
+
     annotation_df = pd.read_csv(settings.MEDIA_ROOT+'/'+annotation_df_filename)
     annotation_df.set_index('row_id', inplace=True)
 

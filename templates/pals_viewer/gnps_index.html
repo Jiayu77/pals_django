@@ -19,7 +19,7 @@
     <div class="row">
         <div class="col-md-4">
             <div class="form-group"><label>GNPS database url</label><input type="text" class="form-control"
-                    name="gnps_url" value=""></div>
+                    name="gnps_url" value="" placeholder="e.g. https://example.com/gnps_database_url"></div>
         </div>
         <div class="col-md-4">
             <div class="form-group"><label>Metadata</label><input type="file" class="form-control-file" name="metadata"
@@ -32,7 +32,7 @@
         <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2" id="get_data"><span
                     id="get_data_start">Get Data</span><span id="get_data_running"><span
                         class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
-                    Running...</span></button></div>
+                        Process is running, it may take about a few minutes, please be patient...</span></button></div>
     </div>
     <!-- get data -->
     <div class="row">
@@ -196,11 +196,12 @@
 <!-- modal detail -->
 {% endblock %}
 {% block custom_javascript %}
+<script src="https://reactome.org/DiagramJs/diagram/diagram.nocache.js"></script>
 <script>
     // ---------------- init global parameters ----------------
     let bootstrap_table = null;
     let global_comparison = {};
-
+    let reactomeDiagram = null;
     // ---------------- init global parameters ----------------
 
     // add new comparison

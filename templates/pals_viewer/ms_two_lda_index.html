@@ -19,7 +19,7 @@
     <div class="row">
         <div class="col-md-4">
             <div class="form-group"><label>Motif Data URL</label><input type="text" class="form-control"
-                    name="motif_data_url" value=""></div>
+                    name="motif_data_url" value="" placeholder="e.g. https://example.com/motif_data_url"></div>
         </div>
         <div class="col-md-4">
             <div class="form-group"><label>Metadata</label><input type="file" class="form-control-file" name="metadata"
@@ -48,7 +48,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group mt-2"><label>Peak Data URL</label><input type="text"
-                                    class="form-control" name="peak_data_url" value=""></div>
+                                    class="form-control" name="peak_data_url" value="" placeholder="e.g. https://example.com/peak_data_url"></div>
                         </div>
                     </div>
                 </div>
@@ -137,7 +137,7 @@
         <div class="col-md-8"><button class="btn btn-lg btn-primary btn-block mb-2" id="analysis"><span
                     id="analysis_start">Start Analysis And Get Results</span><span id="analysis_running"><span
                         class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
-                    Running...</span></button></div>
+                        Process is running, it may take about a few minutes, please be patient...</span></button></div>
     </div>
     <!-- submit -->
     <!-- analysis method select -->
@@ -238,11 +238,12 @@
 <!-- modal detail -->
 {% endblock %}
 {% block custom_javascript %}
+<script src="https://reactome.org/DiagramJs/diagram/diagram.nocache.js"></script>
 <script>
     // ---------------- init global parameters ----------------
     let bootstrap_table = null;
     let global_comparison = {};
-
+    let reactomeDiagram = null;
     // ---------------- init global parameters ----------------
 
     // add new comparison

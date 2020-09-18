@@ -104,7 +104,7 @@ class PathwayTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         data = response.json()['data']
-        self.assertEqual(len(data['details']), 3)
+        self.assertEqual(len(data['details']), 2)
         self.assertNotEqual(data['details'][2].find("https://reactome.org/ContentService/exporter/diagram/R-HSA-1483115.png"), -1)
     
     def test_gnps_get_data(self):
