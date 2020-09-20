@@ -258,14 +258,14 @@
                 <div class="tab-pane fade" id="detail_tab" role="tabpanel" aria-labelledby="detail_tab_nav">
                     <h5 class="mt-2 mb-2">If you want to turn back to result table page, please click result table tab.</h5>
                     <div id="modal-detail-content"></div>
-                    <div id="diagramHolder"></div> 
+                    <!-- <div id="diagramHolder"></div>  -->
                 </div>
             </div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            <!-- <div id="diagramHolder"></div> -->
+            <div id="diagramHolder"></div>
         </div>
     </div>
     <!-- display result -->
@@ -375,6 +375,16 @@
         $("[name='group_column']").selectpicker();
     }
     // init multi select
+
+    // init result table tab
+    function init_result_table_tab() {
+        $("#result_tab_nav").click(function() {
+            if (reactomeDiagram != null) {
+                reactomeDiagram.resize(0, 0);
+            }
+        });
+    }
+    // init result table tab
 
     // update this group
     function update_row(button) {
@@ -646,6 +656,8 @@
                                 "width": 900,
                                 "height": 500
                             });
+                        } else {
+                            reactomeDiagram.resize(900, 500);
                         }
                         reactomeDiagram.loadDiagram(id);
                     }
@@ -724,6 +736,8 @@
 
     // init multi select
     init_multiselect();
+
+    init_result_table_tab();
 
     // 2. binding the click event to button
     //    if click the button, we need to submit data
