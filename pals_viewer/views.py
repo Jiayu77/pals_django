@@ -23,6 +23,9 @@ matplotlib.use('Agg')
 
 # Create your views here.
 def index(request):
+    """
+    Display the pathway analysis page.
+    """
     databases = [
         DATABASE_PIMP_KEGG,
         DATABASE_REACTOME_KEGG,
@@ -67,6 +70,9 @@ def index(request):
     return render(request,'pals_viewer/pathway_index.html', content_dict)
 
 def gnps_index(request):
+    """
+    Display the GNPS analysis page.
+    """
     databases = [
         DATABASE_PIMP_KEGG,
         DATABASE_REACTOME_KEGG,
@@ -104,6 +110,9 @@ def gnps_index(request):
     return render(request,'pals_viewer/gnps_index.html', content_dict)
 
 def ms2lda_index(request):
+    """
+    Display the MS2LDA analysis page.
+    """
     databases = [
         DATABASE_PIMP_KEGG,
         DATABASE_REACTOME_KEGG,
@@ -211,6 +220,9 @@ def keypath_get_data(request):
         return JsonResponse(result)
 
 def save_dataframe_to_csv(df, oldfilename):
+    """
+    Save a dataframe to csv file for caching data to quickly load data during analysis.
+    """
     # save data to local
     now_time = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
     newfilename = oldfilename.replace(".", "_{}.".format(now_time))
@@ -220,6 +232,9 @@ def save_dataframe_to_csv(df, oldfilename):
     return newfilename
 
 def save_upload_file_to_csv(upload_file, oldfilename):
+    """
+    Save a upload file to local csv file for caching data to quickly load data during analysis.
+    """
     # save data to local
     now_time = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
     newfilename = oldfilename.replace(".", "_{}.".format(now_time))
@@ -232,6 +247,9 @@ def save_upload_file_to_csv(upload_file, oldfilename):
     return newfilename
 
 def save_object_to_pkl(object_to_save, oldfilename):
+    """
+    Save an object to local pkl file for caching data to quickly load data during analysis.
+    """
     # save object to local
     now_time = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
     newfilename = oldfilename.replace(".", "_{}.".format(now_time))
@@ -243,7 +261,12 @@ def save_object_to_pkl(object_to_save, oldfilename):
     return newfilename
 
 def analysis(request):
-
+    """
+    The purpose of this function is to conduct pathway analysis 
+    on the data according to the data and analysis conditions 
+    configured by the user, calculate the p-value and other data, 
+    and display it in a table.
+    """
     if request.method != 'POST':
         return None
 
@@ -313,6 +336,9 @@ def analysis(request):
     return JsonResponse(result)
 
 def show_kegg_diagram(request):
+    """
+    Display detail keypath diagram for kegg databases.
+    """
     if request.method != 'POST':
         return None
     
@@ -353,6 +379,9 @@ def show_kegg_diagram(request):
     return JsonResponse(result)
 
 def show_reactome_diagram(request):
+    """
+    Display detail keypath diagram for reactome databases.
+    """
     if request.method != 'POST':
         return None
     
@@ -394,12 +423,18 @@ def show_reactome_diagram(request):
     return JsonResponse(result)
 
 def get_kegg_info(stId):
+    """
+    Get kegg dict by pathway id.
+    """
     k = KEGG()
     data = k.get(stId)
     dict_data = k.parse(data)
     return dict_data
 
 def get_reactome_info(stId):
+    """
+    Load reactome data from remote.
+    """
     # refer to https://reactome.org/dev/content-service
     url = 'https://reactome.org/ContentService/data/query/%s' % stId
     logger.debug('Reactome URL: ' + url)
@@ -450,6 +485,12 @@ def gnps_get_data(request):
 
 
 def gnps_analysis(request):
+    """
+    The purpose of this function is to conduct gnps analysis 
+    on the data according to the data and analysis conditions 
+    configured by the user, calculate the p-value and other data, 
+    and display it in a table.
+    """
     if request.method != 'POST':
         return None
 
@@ -515,6 +556,10 @@ def gnps_analysis(request):
 
 
 def gnps_show_details(request):
+    """
+    Display a single row details of gnps analysis result,
+    and generate a heatmap graph.
+    """
     if request.method != 'POST':
         return None
     
@@ -628,6 +673,9 @@ def gnps_show_details(request):
     return JsonResponse(result)
 
 def ms2lda_get_data(request):
+    """
+    Just load all the data needed to prepare for ms2lda analysis.
+    """
     if request.method != 'POST':
         return None
     
@@ -657,6 +705,12 @@ def ms2lda_get_data(request):
     return JsonResponse(result)
 
 def ms2lda_analysis(request):
+    """
+    The purpose of this function is to conduct ms2lda analysis 
+    on the data according to the data and analysis conditions 
+    configured by the user, calculate the p-value and other data, 
+    and display it in a table.
+    """
     # get data from POST
     metadata_df_filename=request.POST.get('ms2lda_metadata_df_filename')
     ms2lda_url=request.POST.get('motif_data_url')
@@ -729,6 +783,10 @@ def ms2lda_analysis(request):
     return JsonResponse(result)
 
 def ms2lda_show_details(request):
+    """
+    Display a single row details of ms2lda analysis result,
+    and generate a heatmap graph.
+    """
     if request.method != 'POST':
         return None
     
